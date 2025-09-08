@@ -1,0 +1,19 @@
+.AdminLayout-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Aseguramos que el header esté por encima del sidebar */
+.AdminLayout-container > header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+/* Aseguramos que el footer esté en la parte inferior */
+.AdminLayout-container > footer {
+  margin-top: auto;
+}

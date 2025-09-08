@@ -1,10 +1,14 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/01_Login";
-import HomePage from "./pages/HomePage";
+import HomePage from "./home/HomePage";
+
 import AdminLayout from "./layouts/AdminLayout";
+import AdminDashboard from "./pages/0x_AdminDashboard";
+import GestionarMedico from "./pages/0x_GestionarMedico";
+
 import PacienteLayout from "./layouts/PacienteLayout";
 import MedicoLayout from "./layouts/MedicoLayout";
-import ejemplo from "./pages/ejemplo";
+
 function App() {
   return (
     <BrowserRouter>
@@ -15,8 +19,13 @@ function App() {
         <Route path="/MedicoLayout" element={<MedicoLayout/>} />
         <Route path="/PacienteLayout" element={<PacienteLayout/>} />
 
+        {/* rutas con AdminLayout */}
         <Route path="/AdminLayout" element={<AdminLayout />}>
-          <Route path="ejemplo" element={<ejemplo />} />
+          {/* ruta por defecto del admin */}
+          <Route index element={<AdminDashboard />} />
+
+          {/* rutas hijas */}
+          <Route path="gestionar-medico" element={<GestionarMedico />} />
         </Route>
 
       </Routes>

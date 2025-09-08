@@ -1,48 +1,45 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import "../styles/AdminLayaout.css"
+import { Outlet } from "react-router-dom";
+import Header from "../components/common/Header";
+import Sidebar from "../components/common/Sidebar";
+import Container from "../components/common/Container";
+import Footer from "../components/common/Footer";
+import "../styles/AdminLayout.css"
 
-function AdminLayout() {
-    const navigate = useNavigate();
-    const handleNavigation = (section) => {
-        navigate(`/AdminLayout/${section}`);
-        setActiveSection(section);
-        setSidebarOpen(false);
-    };
-    return (
-        <div className="container">
-            <header>Clinica Visionex</header>
-            <aside>
-                <div className="menu-group">
-                    <details>
-                        <summary>Servicios de Fumigación</summary>
-                        <button
-                            onClick={() => handleNavigation("solicitar-servicio-fumigacion")}
-                        >
-                            Solicitar Servicio de Fumigación
-                        </button>
-                        <button onClick={() => handleNavigation("Calificaciones")}>
-                            Calificar Servicio
-                        </button>
-                    </details>
-                    <details>
-                        <summary>Pago</summary>
-                        <button onClick={() => handleNavigation("listar-pagos-cotizacion")}>
-                            Pagar Cotizacion
-                        </button>
-                        <button onClick={() => handleNavigation("listar-pagos-sesion")}>
-                            Pagar Sesion
-                        </button>
-                    </details>
-                </div>
-            </aside>
-            <main className="main-content">
-                <Outlet key={location.pathname} />
-            </main>
-            <footer></footer>
-        </div>
-    );
+const menuPackages = [
+    {
+      name: "Gestionar Usuario",
+      items: [
+        { label: "Gestionar Médico", path: "gestionar-medico", icon: "👨‍⚕️" },
+        { label: "Gestionar Paciente", path: "gestionar-paciente", icon: "👨" },
+        { label: "Gestionar Administrador", path: "gestionar-admin", icon: "👔" },
+      ]
+    },
+    {
+      name: "Inventario",
+      items: [
+        { label: "Medicamentos", path: "medicamentos", icon: "💊" },
+        { label: "Equipos Médicos", path: "equipos-medicos", icon: "🩺" },
+        { label: "Suministros", path: "suministros", icon: "🧻" },
+      ]
+    },
+    {
+      name: "Reportes",
+      items: [
+        { label: "Reporte de Citas", path: "reporte-citas", icon: "📅" },
+        { label: "Reporte Financiero", path: "reporte-financiero", icon: "💰" },
+      ]
+    }
+  ];
+
+export default function AdminLayout() {
+  return (
+    <div className="AdminLayout-container">
+      <Header title="Clinica Visionex" userName="Juan" />
+      <Sidebar menuPackages={menuPackages} />
+      <Container>
+        <Outlet />
+      </Container>
+      <Footer />
+    </div>
+  );
 }
-
-
-export default AdminLayout
