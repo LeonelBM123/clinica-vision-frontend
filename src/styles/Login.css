@@ -1,3 +1,56 @@
-.login-container{
-    background-color: aqua;
+.login-bg{
+    background-color: #2c3e50;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+}
+
+h2, p{
+    color: #000000;
+    font-size: 30px;
+}
+
+.glass-card{
+    background-color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 500px;
+    width: 400px;
+    padding: 10px;
+    border-radius: 15px;
+    border-color: #ffffff;
+    border-style: solid;
+}
+.login-box-modern{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+input{
+    background-color: #ffffff;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 10px;
+    border-style: solid;
+    border-color: #19242f;
+    color: black;
+}
+
+form{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+form button{
+    width: 100px;
+}
+input:focus {
+  outline: none;
+  border-color: #666666;
+  box-shadow: 0 0 6px rgba(52, 152, 219, 0.5);
 }

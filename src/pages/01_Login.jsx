@@ -43,7 +43,6 @@ function Login() {
     return (
         <div className="login-bg">
             <div className="glass-card">
-                {/* <img src={logo} alt="Fumiforte Logo" className="logo-modern" /> */}
                 <div className="login-box-modern">
                     <h2>Login</h2>
                     <p className="subtitle">Inicia sesión para continuar</p>
@@ -73,14 +72,8 @@ function Login() {
                     </form>
                     {errorMsg && <p className="error-modern">{errorMsg}</p>}
                     <p className="register-link-modern">
-                        ¿No tienes cuenta? <a href="/register_user">Regístrate aquí</a>
+                        ¿No tienes cuenta?<br/> <a href="/register_user">Regístrate aquí</a>
                     </p>
-                </div>
-            </div>
-            <div className="carousel-modern">
-                <div className="carousel-content">
-                    <h3>¡Protege tu espacio!</h3>
-                    <p>Soluciones ecológicas y profesionales en control de plagas.</p>
                 </div>
             </div>
         </div>
