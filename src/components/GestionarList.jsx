@@ -11,37 +11,40 @@ export default function GestionarList({
   onEdit, 
   onDelete,
   onAdd,
-  refreshTrigger 
+  refreshKey // renombrado (antes refreshTrigger)
 }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error,setError] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
 
-  useEffect(() => {
-    fetchData();
-  }, [apiUrl, refreshTrigger]);
-
-  const fetchData = async () => {
+  const fetchData = React.useCallback(async (signal) => {
     if (!apiUrl) {
       setLoading(false);
       return;
     }
-
     try {
+      setError("");
       setLoading(true);
-      const response = await fetch(apiUrl);
-      if (!response.ok) {
-        throw new Error('Error en la petición');
-      }
+      const response = await fetch(apiUrl, { signal });
+      if (!response.ok) throw new Error('Error en la petición');
       const result = await response.json();
       setData(Array.isArray(result) ? result : [result]);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      alert('Error al cargar los datos');
+    } catch (err) {
+      if (err.name !== "AbortError") {
+        console.error('Error fetching data:', err);
+        setError(err.message || "Error al cargar los datos");
+      }
     } finally {
-      setLoading(false);
+      if (!signal.aborted) setLoading(false);
     }
-  };
+  }, [apiUrl]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchData(controller.signal);
+    return () => controller.abort();
+  }, [fetchData, refreshKey]); // se actualiza cuando cambia la URL o pides refresh
 
   const handleSort = (key) => {
     let direction = 'ascending';

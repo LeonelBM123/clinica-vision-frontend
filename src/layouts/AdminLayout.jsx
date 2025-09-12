@@ -14,6 +14,14 @@ const menuPackages = [
         { label: "Gestionar Administrador", path: "gestionar-admin", icon: "-" },
       ]
     },
+
+    {
+      name: "Historial Clínico y Diagnóstico",
+      items: [
+        { label: "Gestionar Patologias", path: "patologias", icon: "-" },
+      ]
+    },
+
     {
       name: "Inventario",
       items: [
