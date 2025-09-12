@@ -11,7 +11,7 @@ function Login() {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch("http://127.0.0.1:8000/api/usuarios/login/", {
+            const response = await fetch("http://127.0.0.1:7000/api/usuarios/login/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -19,9 +19,17 @@ function Login() {
                 body: JSON.stringify({ correo, password }),
             });
 
+
             if (response.ok) {
                 const data = await response.json();
                 console.log(data);
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("usuario", JSON.stringify({
+                id: data.usuario_id,
+                rol: data.rol
+             }));
+
+
                 // Accedemos al arreglo de authorities y verificamos si contiene "Gerente"
                 if (data.rol && data.rol.includes("Administrador")) {
                     navigate("/adminlayout");

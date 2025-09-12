@@ -89,7 +89,7 @@
 }
 
 .dropdown-item:hover {
-  background-color: #f5f5f5;
+  background-color: #cdc9c9;
 }
 
 /* Responsive */
@@ -109,4 +109,7 @@
     right: auto;
     left: 0;
   }
+
+
+
 }
