@@ -12,6 +12,10 @@ import GestionarPatologias from "./pages/Gestionar_Patologias";
 import CrearPatologia from "./pages/Gestionar_Patologias/create";
 import EditarPatologia from "./pages/Gestionar_Patologias/edit";
 
+import CrearPaciente from "./pages/Gestionar_Pacientes/create";
+import EditarPaciente from "./pages/Gestionar_Pacientes/edit";
+import GestionarPacientes from "./pages/Gestionar_Pacientes";
+
 function App() {
   return (
     <BrowserRouter>
@@ -34,9 +38,12 @@ function App() {
           <Route path="patologias" element={<GestionarPatologias />} /> 
           <Route path="patologias/crear" element={<CrearPatologia />} /> 
           <Route path="patologias/:id/editar" element={<EditarPatologia />} />             
-          {/*    
+          {/*<Route path="patologias/eliminadas" element={<PatologiasEliminadas />} />  */}
           
-          <Route path="patologias/eliminadas" element={<PatologiasEliminadas />} />  */}
+          {/*rutas para gestionar pacientes */}
+          <Route path="pacientes" element={<GestionarPacientes/>} /> 
+          <Route path="pacientes/crear" element={<CrearPaciente />} /> 
+          <Route path="pacientes/:id/editar" element={<EditarPaciente />} /> 
 
         </Route>
 
