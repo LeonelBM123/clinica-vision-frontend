@@ -117,6 +117,8 @@ export default function GestionarList({
         )}
       </div>
 
+      {error && <div className="error-box">{error}</div>}  
+
       <div className="table-responsive">
         <table className="data-table">
           <thead>
