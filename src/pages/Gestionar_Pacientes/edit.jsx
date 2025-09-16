@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import "../../styles/form_patologias.css";
+import "../../styles/0x_GestionarMedico.css";
 
 export default function EditarPaciente() {
-  const { id } = useParams(); // ID del paciente
-  const navigate = useNavigate();
-
+  const { id } = useParams(); // ID del paciente a editar
   const [form, setForm] = useState({
-    paciente: "", // ID del usuario
+    usuario: "", // antes era paciente
     numero_historia_clinica: "",
     alergias_medicamentos: "",
     antecedentes_oculares: "",
@@ -18,37 +16,23 @@ export default function EditarPaciente() {
     diagnostico_ocular: "",
     estado: true,
   });
-  const [cargando, setCargando] = useState(true);
-  const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  // Cargar datos existentes del paciente
+  // Cargar datos del paciente
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchPaciente = async () => {
       try {
-        setError("");
         const res = await fetch(`http://127.0.0.1:8000/api/pacientes/${id}/`);
-        if (!res.ok) throw new Error("No se pudo cargar el paciente");
+        if (!res.ok) throw new Error("Paciente no encontrado");
         const data = await res.json();
-        setForm({
-          paciente: data.paciente || "",
-          numero_historia_clinica: data.numero_historia_clinica || "",
-          alergias_medicamentos: data.alergias_medicamentos || "",
-          antecedentes_oculares: data.antecedentes_oculares || "",
-          agudeza_visual_derecho: data.agudeza_visual_derecho || "",
-          agudeza_visual_izquierdo: data.agudeza_visual_izquierdo || "",
-          presion_intraocular_derecho: data.presion_intraocular_derecho || "",
-          presion_intraocular_izquierdo: data.presion_intraocular_izquierdo || "",
-          diagnostico_ocular: data.diagnostico_ocular || "",
-          estado: data.estado ?? true,
-        });
-      } catch (e) {
-        setError(e.message);
-      } finally {
-        setCargando(false);
+        setForm(data);
+      } catch (err) {
+        setError(err.message);
       }
     };
-    fetchData();
+    fetchPaciente();
   }, [id]);
 
   const handleChange = (e) => {
@@ -62,31 +46,29 @@ export default function EditarPaciente() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setGuardando(true);
+    setLoading(true);
     try {
       const res = await fetch(`http://127.0.0.1:8000/api/pacientes/${id}/`, {
-        method: "PUT",
+        method: "PUT", // o PATCH si quieres actualizar parcialmente
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
       if (!res.ok) {
         const txt = await res.text();
-        throw new Error(txt || "Error al actualizar paciente");
+        throw new Error(txt || "Error al actualizar el paciente");
       }
       navigate("/AdminLayout/pacientes");
-    } catch (e) {
-      setError(e.message);
+    } catch (err) {
+      setError(err.message);
     } finally {
-      setGuardando(false);
+      setLoading(false);
     }
   };
 
-  if (cargando) return <div className="paciente-form-page"><p>Cargando...</p></div>;
-
   return (
-    <div className="paciente-form-page">
-      <div className="pf-header">
-        <h2>Editar Paciente #{id}</h2>
+    <div className="gestionar-medico-container">
+      <div className="list-header">
+        <h2>Editar Paciente</h2>
         <button
           type="button"
           className="pf-btn pf-btn-secondary"
@@ -98,15 +80,17 @@ export default function EditarPaciente() {
 
       <form className="pf-form" onSubmit={handleSubmit} noValidate>
         <div className="pf-grid">
+          {/* Todos los campos igual que en CrearPaciente */}
           <div className="pf-field">
-            <label htmlFor="paciente">Usuario (ID)</label>
+            <label htmlFor="paciente">Usuario *</label>
             <input
               id="paciente"
-              name="paciente"
               type="number"
+              name="paciente"
               value={form.paciente}
               onChange={handleChange}
               required
+              placeholder="ID del usuario"
             />
           </div>
 
@@ -114,8 +98,8 @@ export default function EditarPaciente() {
             <label htmlFor="numero_historia_clinica">N° Historia Clínica *</label>
             <input
               id="numero_historia_clinica"
-              name="numero_historia_clinica"
               type="text"
+              name="numero_historia_clinica"
               value={form.numero_historia_clinica}
               onChange={handleChange}
               required
@@ -130,6 +114,7 @@ export default function EditarPaciente() {
               name="alergias_medicamentos"
               value={form.alergias_medicamentos}
               onChange={handleChange}
+              rows={3}
             />
           </div>
 
@@ -140,50 +125,51 @@ export default function EditarPaciente() {
               name="antecedentes_oculares"
               value={form.antecedentes_oculares}
               onChange={handleChange}
+              rows={3}
             />
           </div>
 
           <div className="pf-field">
-            <label htmlFor="agudeza_visual_derecho">Agudeza ojo derecho</label>
+            <label htmlFor="agudeza_visual_derecho">Agudeza visual (derecho)</label>
             <input
               id="agudeza_visual_derecho"
-              name="agudeza_visual_derecho"
               type="text"
+              name="agudeza_visual_derecho"
               value={form.agudeza_visual_derecho}
               onChange={handleChange}
             />
           </div>
 
           <div className="pf-field">
-            <label htmlFor="agudeza_visual_izquierdo">Agudeza ojo izquierdo</label>
+            <label htmlFor="agudeza_visual_izquierdo">Agudeza visual (izquierdo)</label>
             <input
               id="agudeza_visual_izquierdo"
-              name="agudeza_visual_izquierdo"
               type="text"
+              name="agudeza_visual_izquierdo"
               value={form.agudeza_visual_izquierdo}
               onChange={handleChange}
             />
           </div>
 
           <div className="pf-field">
-            <label htmlFor="presion_intraocular_derecho">PIO ojo derecho</label>
+            <label htmlFor="presion_intraocular_derecho">Presión intraocular (derecho)</label>
             <input
               id="presion_intraocular_derecho"
-              name="presion_intraocular_derecho"
               type="number"
               step="0.01"
+              name="presion_intraocular_derecho"
               value={form.presion_intraocular_derecho}
               onChange={handleChange}
             />
           </div>
 
           <div className="pf-field">
-            <label htmlFor="presion_intraocular_izquierdo">PIO ojo izquierdo</label>
+            <label htmlFor="presion_intraocular_izquierdo">Presión intraocular (izquierdo)</label>
             <input
               id="presion_intraocular_izquierdo"
-              name="presion_intraocular_izquierdo"
               type="number"
               step="0.01"
+              name="presion_intraocular_izquierdo"
               value={form.presion_intraocular_izquierdo}
               onChange={handleChange}
             />
@@ -196,20 +182,23 @@ export default function EditarPaciente() {
               name="diagnostico_ocular"
               value={form.diagnostico_ocular}
               onChange={handleChange}
+              rows={3}
             />
+              <div className="pf-field pf-field-checkbox">
+                  <label>
+                    <input
+                      type="checkbox"
+                      name="estado"
+                      checked={form.estado}
+                      onChange={handleChange}
+                    />
+                    Activo
+                  </label>
+                </div>
+
           </div>
 
-          <div className="pf-field pf-field-checkbox">
-            <label>
-              <input
-                type="checkbox"
-                name="estado"
-                checked={form.estado}
-                onChange={handleChange}
-              />
-              Activo
-            </label>
-          </div>
+
         </div>
 
         {error && <div className="pf-alert pf-alert-error">{error}</div>}
@@ -219,12 +208,12 @@ export default function EditarPaciente() {
             type="button"
             className="pf-btn pf-btn-secondary"
             onClick={() => navigate("/AdminLayout/pacientes")}
-            disabled={guardando}
+            disabled={loading}
           >
             Cancelar
           </button>
-          <button type="submit" className="pf-btn" disabled={guardando}>
-            {guardando ? "Guardando..." : "Actualizar"}
+          <button type="submit" className="pf-btn" disabled={loading}>
+            {loading ? "Guardando" : "Actualizar"}
           </button>
         </div>
       </form>

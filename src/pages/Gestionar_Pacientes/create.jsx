@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../../styles/form_patologias.css";
+import "../../styles/0x_GestionarMedico.css";
 
 export default function CrearPaciente() {
   const [form, setForm] = useState({
@@ -50,8 +50,9 @@ export default function CrearPaciente() {
   };
 
   return (
-    <div className="paciente-form-page">
-      <div className="pf-header">
+    <div className="gestionar-medico-container">
+     
+      <div className="list-header">
         <h2>Registrar Nuevo Paciente</h2>
         <button
           type="button"
@@ -65,12 +66,12 @@ export default function CrearPaciente() {
       <form className="pf-form" onSubmit={handleSubmit} noValidate>
         <div className="pf-grid">
           <div className="pf-field">
-            <label htmlFor="paciente">Usuario *</label>
+            <label htmlFor="usuario">Usuario *</label>
             <input
-              id="paciente"
+              id="usuario"
               type="number"
-              name="paciente"
-              value={form.paciente}
+              name="usuario"
+              value={form.usuario}
               onChange={handleChange}
               required
               placeholder="ID del usuario"
@@ -167,18 +168,18 @@ export default function CrearPaciente() {
               onChange={handleChange}
               rows={3}
             />
-          </div>
 
-          <div className="pf-field pf-field-checkbox">
-            <label>
-              <input
-                type="checkbox"
-                name="estado"
-                checked={form.estado}
-                onChange={handleChange}
-              />
-              Activo
-            </label>
+            <div className="pf-field pf-field-checkbox">
+              <label>
+                <input
+                  type="checkbox"
+                  name="estado"
+                  checked={form.estado}
+                  onChange={handleChange}
+                />
+                Activo
+              </label>
+            </div>
           </div>
         </div>
 
@@ -194,7 +195,7 @@ export default function CrearPaciente() {
             Cancelar
           </button>
           <button type="submit" className="pf-btn" disabled={loading}>
-            {loading ? "Guardando..." : "Registrar"}
+            {loading ? "Guardando" : "Registrar"}
           </button>
         </div>
       </form>

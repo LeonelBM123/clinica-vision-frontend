@@ -8,14 +8,14 @@ export default function GestionarPacientes() {
   const [refreshKey, setRefreshKey] = React.useState(0);
 
   const columns = [
-    { key: "paciente", label: "ID Usuario", sortable: true, width: "80px" },
+    { key: "usuario", label: "ID Usuario", sortable: true, width: "80px" }, // antes era paciente
     { key: "numero_historia_clinica", label: "N° Historia Clínica", sortable: true },
     { key: "alergias_medicamentos", label: "Alergias", sortable: false },
     { key: "antecedentes_oculares", label: "Antecedentes Oculares", sortable: false },
-    { key: "agudeza_visual_derecho", label: "Antecedentes Oculares", sortable: false },
-    { key: "agudeza_visual_izquierdo", label: "Antecedentes Oculares", sortable: false },
-    { key: "presion_intraocular_derecho", label: "Antecedentes Oculares", sortable: false },
-    { key: "presion_intraocular_izquierdo", label: "Antecedentes Oculares", sortable: false },
+    { key: "agudeza_visual_derecho", label: "Agudeza Visual Derecho", sortable: false },
+    { key: "agudeza_visual_izquierdo", label: "Agudeza Visual Izquierdo", sortable: false },
+    { key: "presion_intraocular_derecho", label: "Presion Intraocular Derecho", sortable: false },
+    { key: "presion_intraocular_izquierdo", label: "Presion Intraocular Izquierdo", sortable: false },
   ];
 
   const handleEdit = (paciente) => {
@@ -50,6 +50,10 @@ export default function GestionarPacientes() {
         onDelete={handleDelete}
         onAdd={handleAdd}
         refreshKey={refreshKey}
+        mapData={(item) => ({
+          ...item,
+          usuario: item.usuario || "", // asegurarse que siempre hay valor
+        })}
       />
     </div>
   );
