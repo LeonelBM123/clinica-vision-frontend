@@ -1,0 +1,215 @@
+:root {
+  --pf-bg: #0f1115;
+  --pf-card: #1b1f27;
+  --pf-border: #2a303a;
+  --pf-border-focus: #3a89ff;
+  --pf-text: #e6eaf0;
+  --pf-text-soft: #9aa4b1;
+  --pf-primary: #3d7dff;
+  --pf-primary-hover: #2d6be6;
+  --pf-danger: #ff4d4f;
+  --pf-radius: 10px;
+  --pf-transition: .18s ease;
+  --pf-shadow: 0 4px 18px -6px rgba(0,0,0,.55);
+  --pf-gradient: linear-gradient(135deg,#3358ff,#6c3dff);
+}
+
+.patologia-form-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: clamp(1rem,2vw,2rem);
+  color: var(--pf-text);
+  font-family: system-ui, sans-serif;
+  animation: fadeIn .35s ease;
+}
+
+.pf-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.pf-header h2 {
+  font-size: clamp(1.3rem,2.4vw,1.8rem);
+  font-weight: 600;
+  background: var(--pf-gradient);
+  -webkit-background-clip: text;
+  color: transparent;
+  margin: 0;
+}
+
+.pf-form {
+  background: var(--pf-card);
+  border: 1px solid var(--pf-border);
+  border-radius: var(--pf-radius);
+  padding: clamp(1rem,2.2vw,2rem);
+  box-shadow: var(--pf-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.pf-form::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 85% 15%,rgba(100,150,255,.07),transparent 60%),
+    radial-gradient(circle at 10% 85%,rgba(140,100,255,.07),transparent 65%);
+  pointer-events: none;
+}
+
+.pf-grid {
+  display: grid;
+  gap: 1.2rem clamp(.8rem,1.4vw,1.4rem);
+  grid-template-columns: repeat(auto-fit,minmax(240px,1fr));
+}
+
+.pf-field {
+  display: flex;
+  flex-direction: column;
+  gap: .45rem;
+  position: relative;
+}
+
+.pf-field-full {
+  grid-column: 1 / -1;
+}
+
+.pf-field label {
+  font-size: .85rem;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  font-weight: 600;
+  color: var(--pf-text-soft);
+}
+
+.pf-field input,
+.pf-field textarea,
+.pf-field select {
+  background: #12151b;
+  border: 1px solid var(--pf-border);
+  color: var(--pf-text);
+  padding: .75rem .9rem;
+  border-radius: 8px;
+  font-size: .95rem;
+  resize: vertical;
+  outline: none;
+  transition: var(--pf-transition);
+  font-family: inherit;
+}
+
+.pf-field input:focus,
+.pf-field textarea:focus,
+.pf-field select:focus {
+  border-color: var(--pf-border-focus);
+  box-shadow: 0 0 0 2px rgba(61,125,255,.25);
+}
+
+.pf-field input::placeholder,
+.pf-field textarea::placeholder {
+  color: #5a6472;
+}
+
+.pf-actions {
+  margin-top: 1.8rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: .9rem;
+  flex-wrap: wrap;
+}
+
+.pf-btn {
+  background: var(--pf-gradient);
+  color: #fff;
+  border: none;
+  padding: .8rem 1.4rem;
+  font-size: .9rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  letter-spacing: .5px;
+  position: relative;
+  overflow: hidden;
+  transition: var(--pf-transition);
+}
+
+.pf-btn:hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+}
+
+.pf-btn:active {
+  transform: translateY(0);
+  filter: brightness(.95);
+}
+
+.pf-btn[disabled] {
+  opacity: .55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.pf-btn-secondary {
+  background: #262d37;
+}
+
+.pf-btn-secondary:hover {
+  background: #323b46;
+}
+
+.pf-alert {
+  margin-top: 1.2rem;
+  padding: .85rem 1rem;
+  border-radius: 8px;
+  font-size: .85rem;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.pf-alert-error {
+  background: #2a1113;
+  color: #ff9b9d;
+  border: 1px solid #ff4d4f33;
+}
+
+@media (min-width: 880px) {
+  .pf-grid {
+    grid-template-columns: repeat(12,1fr);
+  }
+  .pf-field:not(.pf-field-full) {
+    grid-column: span 6;
+  }
+  .pf-field-full {
+    grid-column: span 12;
+  }
+  .pf-field:nth-last-child(2) {
+    grid-column: span 4;
+  }
+}
+
+@media (max-width: 520px) {
+  .pf-form {
+    padding: 1.1rem;
+  }
+  .pf-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+  .pf-btn, .pf-btn-secondary {
+    width: 100%;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity:0; transform: translateY(8px); }
+  to { opacity:1; transform: translateY(0); }
+}
+
+.pf-field-checkbox {
+  display: flex;
+  align-items: flex-start; /* alinea con la parte superior */
+  padding-top: 8px; /* opcional para ajustar */
+}
