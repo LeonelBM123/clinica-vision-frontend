@@ -170,4 +170,37 @@
     padding: 0.7rem 1rem 0.7rem 2rem;
     font-size: 0.9rem;
   }
+  
+  .hamburger-btn {
+    display: block;
+    padding: 10px;
+  }
+}
+
+/* Mantener botón oculto en desktop */
+@media (min-width: 769px) {
+  .hamburger-btn {
+    display: none;
+  }
+}
+
+.hamburger-btn {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  width: 40px;
+  height: 40px;
+  line-height: 0px;
+  background-color: var(--primary-color, #3498db);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  z-index: 1001;
+  font-size: 1.2rem;
+  transition: background-color 0.2s;
+}
+
+.hamburger-btn:hover {
+  background-color: var(--primary-dark, #2980b9);
 }
