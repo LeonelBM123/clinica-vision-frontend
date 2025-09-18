@@ -16,6 +16,8 @@ import CrearPaciente from "./pages/Gestionar_Pacientes/create";
 import EditarPaciente from "./pages/Gestionar_Pacientes/edit";
 import GestionarPacientes from "./pages/Gestionar_Pacientes";
 
+import GestionarBitacora from "./pages/Gestionar_Bitacora";
+
 function App() {
   return (
     <BrowserRouter>
@@ -28,9 +30,10 @@ function App() {
 
         {/* rutas con AdminLayout */}
         <Route path="/AdminLayout" element={<AdminLayout />}>
+
           {/* ruta por defecto del admin */}
           <Route index element={<AdminDashboard />} />
-
+          <Route path="bitacora" element={<GestionarBitacora />} />
           {/* rutas hijas */}
           <Route path="gestionar-medico" element={<GestionarMedico />} />
 

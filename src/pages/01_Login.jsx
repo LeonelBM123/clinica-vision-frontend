@@ -25,7 +25,7 @@ function Login() {
                 // Accedemos al arreglo de authorities y verificamos si contiene "Gerente"
                 if (data.rol && data.rol.includes("Administrador")) {
                     navigate("/adminlayout");
-                } else if (data.rol && data.rol.includes("Medico")) {
+                } else if (data.rol && data.rol.includes("MÉDICO")) {
                     navigate("/workerlayout");
                 } else {
                     navigate("/userlayout");

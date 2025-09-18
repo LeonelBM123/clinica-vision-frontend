@@ -12,6 +12,7 @@ const menuPackages = [
         { label: "Gestionar Médico", path: "gestionar-medico", icon: "-" },
         { label: "Gestionar Paciente", path: "pacientes", icon: "-" },
         { label: "Gestionar Administrador", path: "gestionar-admin", icon: "-" },
+        { label: "Gestionar Bitácora", path: "bitacora", icon: "-" },
       ]
     },
 

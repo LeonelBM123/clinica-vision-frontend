@@ -17,7 +17,6 @@ export default function Header({ title, userName }) {
   const handleLogout = () => {
     console.log("cierre de sesion exitoso");
     navigate("/login")
-    
   };
 
   return (
