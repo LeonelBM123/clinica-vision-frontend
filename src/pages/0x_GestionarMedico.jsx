@@ -15,7 +15,7 @@ export default function GestionarMedico() {
   const [modalMode, setModalMode] = useState('add');
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const API_URL = import.meta.env.VITE_API_URL+"api/medicos/";
+  const API_URL = "https://clinica-backend-b8m9.onrender.com/api/medicos/";
 
   const columns = [
     { key: 'medico', label: 'ID', sortable: true, width: '80px' },
