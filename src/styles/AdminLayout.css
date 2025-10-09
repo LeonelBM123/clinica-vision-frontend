@@ -7,9 +7,11 @@
 /* Aseguramos que el header esté por encima del sidebar */
 .AdminLayout-container > header {
   position: fixed;
+  display: flex;
   top: 0;
-  left: 0;
+  padding-left: 16%;
   right: 0;
+  flex-direction: row;
   z-index: 1000;
 }
 
