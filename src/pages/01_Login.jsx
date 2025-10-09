@@ -1,6 +1,7 @@
 import '../styles/Login.css';
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from '../config/api';
 
 function Login() {
     const [correo, setCorreo] = useState("");
@@ -11,7 +12,7 @@ function Login() {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch("https://clinica-backend-b8m9.onrender.com/api/usuarios/login/", {
+            const response = await fetch(`${API_BASE_URL}api/acounts/usuarios/login/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

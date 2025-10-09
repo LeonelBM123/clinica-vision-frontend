@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "../../styles/form_patologias.css";
+import { API_BASE_URL } from "../../config/api";
 
 export default function EditarPatologia() {
   const { id } = useParams();
@@ -23,7 +24,7 @@ export default function EditarPatologia() {
     const fetchData = async () => {
       try {
         setError("");
-        const res = await fetch(`https://clinica-backend-b8m9.onrender.com/api/patologias/${id}/`);
+        const res = await fetch(`${API_BASE_URL}api/citas/patologias/${id}/`);
         if (!res.ok) throw new Error("No se pudo cargar la patología");
         const data = await res.json();
         setForm({
@@ -49,7 +50,7 @@ export default function EditarPatologia() {
     setError("");
     setGuardando(true);
     try {
-      const res = await fetch(`https://clinica-backend-b8m9.onrender.com/api/patologias/${id}/`, {
+      const res = await fetch(`${API_BASE_URL}api/citas/patologias/${id}/`, {
         method: "PUT", // o "PATCH" si quieres parcial
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),

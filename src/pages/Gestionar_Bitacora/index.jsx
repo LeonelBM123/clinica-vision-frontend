@@ -1,7 +1,8 @@
 // src/pages/Gestionar_Bitacora/index.jsx
 import React, { useEffect, useState } from "react";
+import { API_BASE_URL } from "../../config/api";
 
-const API_BASE = "http://127.0.0.1:8000/api/bitacora/";
+const API_BASE = `${API_BASE_URL}api/bitacora/`;
 
 export default function GestionarBitacora() {
     const [registros, setRegistros] = useState([]);
@@ -14,7 +15,7 @@ export default function GestionarBitacora() {
         setLoading(true);
         setError(null);
         try {
-            const res = await fetch("https://clinica-backend-b8m9.onrender.com/api/bitacoras/", {
+            const res = await fetch(`${API_BASE_URL}api/acounts/bitacoras/`, {
                 headers: {
                     "Content-Type": "application/json",
                     ...(token ? { Authorization: `Token ${token}` } : {})

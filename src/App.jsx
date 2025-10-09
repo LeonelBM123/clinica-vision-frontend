@@ -16,6 +16,10 @@ import CrearPaciente from "./pages/Gestionar_Pacientes/create";
 import EditarPaciente from "./pages/Gestionar_Pacientes/edit";
 import GestionarPacientes from "./pages/Gestionar_Pacientes";
 
+import CrearUsuario from "./pages/Gestionar_Usuarios/create";
+import EditarUsuario from "./pages/Gestionar_Usuarios/edit";
+import GestionarUsuarios from "./pages/Gestionar_Usuarios";
+
 import GestionarBitacora from "./pages/Gestionar_Bitacora";
 
 function App() {
@@ -46,7 +50,12 @@ function App() {
           {/*rutas para gestionar pacientes */}
           <Route path="pacientes" element={<GestionarPacientes/>} /> 
           <Route path="pacientes/crear" element={<CrearPaciente />} /> 
-          <Route path="pacientes/:id/editar" element={<EditarPaciente />} /> 
+          <Route path="pacientes/:id/editar" element={<EditarPaciente />} />
+
+          {/*rutas para gestionar usuarios */}
+          <Route path="usuarios" element={<GestionarUsuarios/>} /> 
+          <Route path="usuarios/crear" element={<CrearUsuario />} /> 
+          <Route path="usuarios/:id/editar" element={<EditarUsuario />} />
 
         </Route>
 

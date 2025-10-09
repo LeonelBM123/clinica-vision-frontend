@@ -9,9 +9,9 @@ const menuPackages = [
     {
       name: "Gestionar Usuario",
       items: [
+        { label: "Gestionar Usuarios", path: "usuarios", icon: "-" },
         { label: "Gestionar Médico", path: "gestionar-medico", icon: "-" },
         { label: "Gestionar Paciente", path: "pacientes", icon: "-" },
-        { label: "Gestionar Administrador", path: "gestionar-admin", icon: "-" },
         { label: "Gestionar Bitácora", path: "bitacora", icon: "-" },
       ]
     },

@@ -2,6 +2,7 @@ import React from "react";
 import GestionarList from "../../components/GestionarList";
 import "../../styles/0x_GestionarMedico.css";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../../config/api";
 
 export default function GestionarPacientes() {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ export default function GestionarPacientes() {
   const handleDelete = async (paciente) => {
     if (!window.confirm(`¿Eliminar al paciente ${paciente.numero_historia_clinica}?`)) return;
     try {
-      const res = await fetch(`https://clinica-backend-b8m9.onrender.com/api/pacientes/${paciente.id}/`, {
+      const res = await fetch(`${API_BASE_URL}api/citas/pacientes/${paciente.id}/`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Error eliminando paciente");
@@ -37,13 +38,13 @@ export default function GestionarPacientes() {
   };
 
   const handleAdd = () => {
-    navigate("/AdminLayout/pacientes/crear");
+    navigate("AdminLayout/pacientes/crear");
   };
 
   return (
     <div className="gestionar-pacientes-container">
       <GestionarList
-        apiUrl="https://clinica-backend-b8m9.onrender.com/api/pacientes"
+        apiUrl={`${API_BASE_URL}api/citas/pacientes`}
         title="Gestión de Pacientes"
         columns={columns}
         onEdit={handleEdit}

@@ -4,6 +4,7 @@ import GestionModal from '../components/GestionModal';
 import ConfirmModal from '../components/ConfirmModal';
 import MessageModal from '../components/MessageModal';
 import "../styles/0x_GestionarMedico.css";
+import { API_BASE_URL } from '../config/api';
 
 export default function GestionarMedico() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -15,7 +16,7 @@ export default function GestionarMedico() {
   const [modalMode, setModalMode] = useState('add');
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const API_URL = "https://clinica-backend-b8m9.onrender.com/api/medicos/";
+  const API_URL = `${API_BASE_URL}api/medicos/`;
 
   const columns = [
     { key: 'medico', label: 'ID', sortable: true, width: '80px' },

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "../../styles/0x_GestionarMedico.css";
+import { API_BASE_URL } from "../../config/api";
 
 export default function EditarPaciente() {
   const { id } = useParams(); // ID del paciente a editar
@@ -27,7 +28,7 @@ export default function EditarPaciente() {
 useEffect(() => {
   const fetchPaciente = async () => {
     try {
-      const res = await fetch(`https://clinica-backend-b8m9.onrender.com/api/pacientes/${id}/`);
+      const res = await fetch(`${API_BASE_URL}api/citas/pacientes/${id}/`);
       if (!res.ok) throw new Error("Paciente no encontrado");
       const data = await res.json();
 
@@ -72,7 +73,7 @@ useEffect(() => {
     setError("");
     setLoading(true);
     try {
-      const res = await fetch(`https://clinica-backend-b8m9.onrender.com/api/pacientes/${id}/`, {
+      const res = await fetch(`${API_BASE_URL}api/citas/pacientes/${id}/`, {
         method: "PUT", // o PATCH si quieres actualizar parcialmente
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
