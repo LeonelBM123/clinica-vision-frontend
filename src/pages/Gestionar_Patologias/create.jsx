@@ -1,137 +1,82 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../../styles/form_patologias.css";
-import { API_BASE_URL } from "../../config/api";
+import { ArrowLeft, AlertCircle } from "lucide-react";
+import PatologiaForm from "../../components/dashboard/PatologiaForm.jsx";
+import { api } from "../../services/apiClient.js";
 
 export default function CrearPatologia() {
-  const [form, setForm] = useState({
-    nombre: "",
-    alias: "",
-    descripcion: "",
-    gravedad: "LEVE",
-  });
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const gravedadOpciones = ["LEVE", "MODERADA", "GRAVE", "CRITICA"];
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
+  function handleSubmit(data) {
     setLoading(true);
-    try {
-      const res = await fetch(`${API_BASE_URL}api/citas/patologias/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      if (!res.ok) {
-        const txt = await res.text();
-        throw new Error(txt || "Error al registrar la patología");
-      }
-      navigate("/AdminLayout/patologias");
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    setError("");
+    api.post("/diagnosticos/patologias/", data)
+      .then(() => {
+        // Recarga automática y navegación
+        navigate("/dashboard/patologias");
+        window.location.reload();
+      })
+      .catch(e => setError(e.message))
+      .finally(() => setLoading(false));
+  }
 
   return (
-    <div className="patologia-form-page">
-      <div className="pf-header">
-        <h2>Registrar Nueva Patología</h2>
-        <button
-          type="button"
-          className="pf-btn pf-btn-secondary"
-          onClick={() => navigate(-1)}
-        >
-          Volver
-        </button>
-      </div>
-
-      <form className="pf-form" onSubmit={handleSubmit} noValidate>
-        <div className="pf-grid">
-          <div className="pf-field">
-            <label htmlFor="nombre">Nombre *</label>
-            <input
-              id="nombre"
-              type="text"
-              name="nombre"
-              value={form.nombre}
-              onChange={handleChange}
-              required
-              maxLength={120}
-              placeholder="Ej: Glaucoma"
-            />
-          </div>
-
-          <div className="pf-field">
-            <label htmlFor="alias">Alias *</label>
-            <input
-              id="alias"
-              type="text"
-              name="alias"
-              value={form.alias}
-              onChange={handleChange}
-              required
-              maxLength={120}
-              placeholder="Nombre corto"
-            />
-          </div>
-
-          <div className="pf-field pf-field-full">
-            <label htmlFor="descripcion">Descripción *</label>
-            <textarea
-              id="descripcion"
-              name="descripcion"
-              value={form.descripcion}
-              onChange={handleChange}
-              required
-              rows={5}
-              placeholder="Descripción clínica..."
-            />
-          </div>
-
-            <div className="pf-field">
-              <label htmlFor="gravedad">Gravedad *</label>
-              <select
-                id="gravedad"
-                name="gravedad"
-                value={form.gravedad}
-                onChange={handleChange}
-                required
-              >
-                {gravedadOpciones.map((op) => (
-                  <option key={op} value={op}>
-                    {op}
-                  </option>
-                ))}
-              </select>
+    <div className="min-h-screen bg-gray-50 py-6">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Header con botón de volver */}
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors font-medium"
+            >
+              <ArrowLeft size={20} />
+              <span className="hidden sm:inline">Volver</span>
+            </button>
+            <div className="h-6 w-px bg-gray-300"></div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Nueva Patología</h1>
+              <p className="text-gray-600 mt-1">Registra una nueva patología en el sistema</p>
             </div>
+          </div>
         </div>
 
-        {error && <div className="pf-alert pf-alert-error">{error}</div>}
+        {/* Error */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3">
+            <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
+            <div>
+              <h3 className="text-red-800 font-semibold">Error al crear patología</h3>
+              <p className="text-red-600 text-sm">{error}</p>
+            </div>
+          </div>
+        )}
 
-        <div className="pf-actions">
-          <button
-            type="button"
-            className="pf-btn pf-btn-secondary"
-            onClick={() => navigate("/AdminLayout/patologias")}
-            disabled={loading}
-          >
-            Cancelar
-          </button>
-          <button type="submit" className="pf-btn" disabled={loading}>
-            {loading ? "Guardando..." : "Registrar"}
-          </button>
+        {/* Formulario */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+          <div className="px-6 py-4 bg-gradient-to-r from-blue-50 to-white border-b border-gray-200">
+            <h2 className="text-xl font-bold text-gray-900">Información de la Patología</h2>
+            <p className="text-gray-600 text-sm mt-1">Complete los datos requeridos</p>
+          </div>
+          
+          <div className="p-6">
+            <PatologiaForm
+              initialPatologia={null}
+              onSubmit={handleSubmit}
+              onCancel={() => navigate("/dashboard/patologias")}
+              loading={loading}
+            />
+          </div>
         </div>
-      </form>
+
+        {/* Footer informativo */}
+        <div className="mt-8 text-center text-gray-500 text-sm">
+          <p>Los campos marcados con * son obligatorios</p>
+        </div>
+      </div>
     </div>
   );
 }

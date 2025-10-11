@@ -73,12 +73,6 @@ const HomePage = () => {
                             >
                                 Comienza Ahora
                             </button>
-                            <button
-                                onClick={() => navigate('/register-user')}
-                                className="w-full sm:w-auto bg-transparent hover:bg-blue-100 text-blue-700 font-semibold py-3 px-8 rounded-lg text-lg transition duration-200 border border-blue-300"
-                            >
-                                Soy Empleado
-                            </button>
                         </div>
                     </div>
                 </section>

@@ -1,7 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import HomePage from "../home/HomePage";
 import Login from "../pages/01_Login";
-import RegisterUser from "../pages/02_RegisterUser";
 import RegisterClinic from "../pages/03_RegisterClinic";
 
 // Layout principal
@@ -13,28 +12,14 @@ import PublicRoute from "../components/PublicRoute";
 
 // Páginas principales
 import AdminDashboard from "../pages/0x_AdminDashboard";
-import GestionarMedico from "../pages/0x_GestionarMedico";
-
-// Páginas de gestión de usuarios
-import GestionarUsuarios from "../pages/Gestionar_Usuarios/index";
-import CreateUsuario from "../pages/Gestionar_Usuarios/create";
-import EditUsuario from "../pages/Gestionar_Usuarios/edit";
-
-// Páginas de gestión de pacientes
-import GestionarPacientes from "../pages/Gestionar_Pacientes/index";
-import CreatePaciente from "../pages/Gestionar_Pacientes/create";
-import EditPaciente from "../pages/Gestionar_Pacientes/edit";
 
 // Páginas de gestión de patologías
-import GestionarPatologias from "../pages/Gestionar_Patologias/index";
-import CreatePatologia from "../pages/Gestionar_Patologias/create";
-import EditPatologia from "../pages/Gestionar_Patologias/edit";
+import GestionarPatologias from "../pages/Gestionar_Patologias/index.jsx";
+import CrearPatologia from "../pages/Gestionar_Patologias/create.jsx";
+import EditarPatologia from "../pages/Gestionar_Patologias/edit.jsx";
 
 // Páginas de gestión de bitácora
 import GestionarBitacora from "../pages/Gestionar_Bitacora/index";
-
-// Páginas de solicitar cita
-import SolicitarCita from "../pages/Solicitar_Cita/create";
 
 const router = createBrowserRouter([
   // Rutas públicas
@@ -47,48 +32,34 @@ const router = createBrowserRouter([
     element: <PublicRoute><Login /></PublicRoute>,
   },
   {
-    path: "/register-user",
-    element: <PublicRoute><RegisterUser /></PublicRoute>,
-  },
-  {
     path: "/register-clinic",
     element: <PublicRoute><RegisterClinic /></PublicRoute>,
   },
 
-  // Layout principal - todas las rutas autenticadas usando AdminLayout
+  // Layout principal - rutas autenticadas usando AdminLayout
   {
     path: "/dashboard",
-    element: <ProtectedRoute><AdminLayout /></ProtectedRoute>,
+    element: <AdminLayout />,
     children: [
       {
         path: "",
         element: <AdminDashboard />,
       },
-      
-      // Gestión de Usuarios (Solo SuperAdmin y Admin)
+
+      // Gestión de Patologías (Admin y Doctor)
       {
-        path: "usuarios",
-        element: <GestionarUsuarios />,
+        path: "patologias",
+        element: <GestionarPatologias />,
+        children: [
+          { path: "nueva", element: <CrearPatologia /> },
+          { path: ":id/editar", element: <EditarPatologia /> },
+        ],
       },
-      {
-        path: "usuarios/create",
-        element: <CreateUsuario />,
-      },
-      {
-        path: "usuarios/edit/:id",
-        element: <EditUsuario />,
-      },
-      
-      // Gestión de Bitácora (Todos los roles)
+
+      // Gestión de Bitácora (Solo SuperAdmin y Admin)
       {
         path: "bitacora",
         element: <GestionarBitacora />,
-      },
-      
-      // Solicitar Cita (Médicos y Admin)
-      {
-        path: "solicitar-cita",
-        element: <SolicitarCita />,
       },
     ],
   },
