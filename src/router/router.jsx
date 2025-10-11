@@ -1,17 +1,17 @@
 import { createBrowserRouter } from "react-router-dom";
 import HomePage from "../home/HomePage";
-import Login from "../pages/01_Login";
-import RegisterClinic from "../pages/03_RegisterClinic";
+import Login from "../pages/Login.jsx";
+import RegisterClinic from "../pages/RegisterClinic";
 
 // Layout principal
-import AdminLayout from "../layouts/AdminLayout";
+import AdminLayout from "../layouts/Layout.jsx";
 
 // Componentes de protección
 import ProtectedRoute from "../components/ProtectedRoute";
 import PublicRoute from "../components/PublicRoute";
 
 // Páginas principales
-import AdminDashboard from "../pages/0x_AdminDashboard";
+import AdminDashboard from "../pages/AdminDashboard.jsx";
 
 // Páginas de gestión de patologías
 import GestionarPatologias from "../pages/Gestionar_Patologias/index.jsx";

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, AlertCircle } from "lucide-react";
-import PatologiaForm from "../../components/dashboard/PatologiaForm.jsx";
+import PatologiaForm from "../../components/Form/PatologiaForm.jsx";
 import { api } from "../../services/apiClient.js";
 
 export default function CrearPatologia() {
