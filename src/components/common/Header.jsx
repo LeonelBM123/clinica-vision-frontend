@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './styles/Header.css';
 import { Navigate, useNavigate }  from 'react-router-dom';
+import apiClient from '../../services/apiClient';
 export default function Header({ title, userName }) {
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,6 +17,9 @@ export default function Header({ title, userName }) {
 
   const handleLogout = () => {
     console.log("cierre de sesion exitoso");
+    const response = apiClient.logout();
+    localStorage.removeItem("token");
+    localStorage.removeItem("userData");
     navigate("/login")
   };
 

@@ -48,6 +48,15 @@ class ApiClient {
     });
   }
 
+  async logout(){
+    return this.request('cuentas/usuarios/logout/',{
+      method:'POST',
+      headers:{
+        'Authorization': `Token ${localStorage.getItem('token')}`
+      }
+    });
+  }
+
   async register(userData) {
     return this.request('cuentas/usuarios/', {
       method: 'POST',
