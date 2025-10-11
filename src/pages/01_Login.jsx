@@ -27,13 +27,25 @@ function Login() {
 
         try {
             const userData = await authService.login(formData.correo, formData.password);
-            
-            if (!userData.puede_acceder) {
-                navigate("/subscription-status");
+
+            // Si es paciente, no accede
+            if (userData.rol === 'paciente') {
+                setErrorMsg("Acceso no permitido para pacientes.");
                 return;
             }
 
-            // Todos los roles van al mismo dashboard
+            // El superAdmin accede siempre
+            if (userData.rol === 'superAdmin') {
+                navigate("/dashboard");
+                return;
+            }
+
+            // Para otros roles, valida acceso
+            if (!userData.puede_acceder) {
+                setErrorMsg("Tu grupo no tiene acceso al sistema. Contacta al administrador.");
+                return;
+            }
+
             navigate("/dashboard");
             
         } catch (error) {

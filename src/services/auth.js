@@ -61,19 +61,23 @@ class AuthService {
   }
 
   isSuperAdmin() {
-    return this.currentUser?.rol?.toLowerCase() === 'superadmin';
+    return this.currentUser?.rol === 'superAdmin';
   }
 
   isAdmin() {
-    return this.currentUser?.rol?.toLowerCase() === 'administrador';
+    return this.currentUser?.rol === 'administrador';
   }
 
   isMedico() {
-    return this.currentUser?.rol?.toLowerCase() === 'medico';
+    return this.currentUser?.rol === 'medico';
   }
 
   canAccessSystem() {
-    return this.currentUser?.puede_acceder === true;
+    const user = this.getCurrentUser();
+    // El superAdmin siempre puede acceder
+    if (user?.rol === 'superAdmin') return true;
+    // Otros roles dependen de puede_acceder
+    return user?.puede_acceder === true;
   }
 
   getCurrentUser() {

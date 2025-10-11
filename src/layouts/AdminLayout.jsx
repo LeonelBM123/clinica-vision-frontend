@@ -12,10 +12,42 @@ import {
   Pill, Box, CreditCard, Eye // Asegúrate de que Eye esté importado para el logo del sidebar
 } from 'lucide-react';
 
-const getMenuPackagesByRole = () => {
-  const currentUser = authService.getCurrentUser();
-  const rol = currentUser?.rol?.toLowerCase();
-  const iconSize = 20; // Tamaño de icono consistente
+const getAllMenuPackages = () => {
+  const baseMenu = [
+    {
+      name: "Dashboard",
+      items: [
+        { label: "Panel Principal", path: "", icon: <Home size={20} /> },
+      ]
+    },
+  ];
+
+  return [
+    ...baseMenu,
+    {
+      name: "Gestión del Sistema",
+      items: [
+        { label: "Gestionar Grupos", path: "grupos", icon: <Building size={20} /> },
+        { label: "Gestionar Usuarios", path: "usuarios", icon: <UserCircle size={20} /> },
+        { label: "Gestionar Médicos", path: "gestionar-medico", icon: <Stethoscope size={20} /> },
+        { label: "Gestionar Patologías", path: "patologias", icon: <HeartPulse size={20} /> },
+        { label: "Ver Bitácora", path: "bitacora", icon: <ClipboardList size={20} /> },
+      ]
+    },
+    {
+      name: "Reportes y Configuración",
+      items: [
+        { label: "Reportes Globales", path: "reportes-globales", icon: <PieChart size={20} /> },
+        { label: "Configuración Global", path: "configuracion-global", icon: <Settings size={20} /> },
+      ]
+    }
+  ];
+};
+
+const getMenuPackagesByRole = (currentUser) => {
+  const rol = currentUser?.rol;
+  
+  const iconSize = 20;
 
   const baseMenu = [
     {
@@ -33,29 +65,10 @@ const getMenuPackagesByRole = () => {
     }
   ];
 
-  if (rol === 'superadmin') {
-    return [
-      ...baseMenu,
-      {
-        name: "Gestión del Sistema",
-        items: [
-          { label: "Gestionar Grupos", path: "grupos", icon: <Building size={iconSize} /> },
-          { label: "Gestionar Usuarios", path: "usuarios", icon: <UserCircle size={iconSize} /> },
-          { label: "Gestionar Médicos", path: "gestionar-medico", icon: <Stethoscope size={iconSize} /> },
-          { label: "Gestionar Patologías", path: "patologias", icon: <HeartPulse size={iconSize} /> },
-          { label: "Ver Bitácora", path: "bitacora", icon: <ClipboardList size={iconSize} /> },
-        ]
-      },
-      {
-        name: "Reportes y Configuración",
-        items: [
-          { label: "Reportes Globales", path: "reportes-globales", icon: <PieChart size={iconSize} /> },
-          { label: "Configuración Global", path: "configuracion-global", icon: <Settings size={iconSize} /> },
-        ]
-      }
-    ];
+  if (rol === 'superAdmin') { 
+    return getAllMenuPackages();
   } 
-  else if (rol === 'administrador') {
+  else if (rol === 'administrador') { 
     return [
       ...baseMenu,
       {
@@ -67,18 +80,10 @@ const getMenuPackagesByRole = () => {
         ]
       },
       {
-        name: "Configuración Clínica",
+        name: "Historias Clínicas y Diagnósticos",
         items: [
-          { label: "Gestionar Patologías", path: "patologias", icon: <HeartPulse size={iconSize} /> },
-          { label: "Solicitar Cita", path: "solicitar-cita", icon: <Calendar size={iconSize} /> },
-        ]
-      },
-      {
-        name: "Inventario",
-        items: [
-          { label: "Medicamentos", path: "medicamentos", icon: <Pill size={iconSize} /> },
-          { label: "Equipos Médicos", path: "equipos-medicos", icon: <Stethoscope size={iconSize} /> },
-          { label: "Suministros", path: "suministros", icon: <Box size={iconSize} /> },
+          { label: "Patologías", path: "patologias", icon: <HeartPulse size={iconSize} /> },
+          { label: "Tratamientos y Medicación", path: "diagnosticos", icon: <Pill size={iconSize} /> },
         ]
       },
       {
@@ -90,7 +95,7 @@ const getMenuPackagesByRole = () => {
       }
     ];
   } 
-  else if (rol === 'medico') {
+  else if (rol === 'medico') { // ¡Comparación exacta!
     return [
       ...baseMenu,
       {
@@ -108,10 +113,20 @@ const getMenuPackagesByRole = () => {
 
 export default function AdminLayout() {
   const currentUser = authService.getCurrentUser();
-  const menuPackages = getMenuPackagesByRole();
+   console.log('currentUser:', currentUser);
+  console.log('rol:', currentUser?.rol);
+  const menuPackages = getMenuPackagesByRole(currentUser); 
   const [isSidebarOpen, setSidebarOpen] = useState(false);
 
   const toggleSidebar = () => setSidebarOpen(open => !open);
+
+  // Generar título dinámico basado en rol
+  const getTitle = () => {
+    if (currentUser?.rol === 'superAdmin') return 'Super Admin Panel';
+    if (currentUser?.rol === 'administrador') return `Admin - ${currentUser?.grupo_nombre || 'Dashboard'}`;
+    if (currentUser?.rol === 'medico') return `Médico - ${currentUser?.grupo_nombre || 'Dashboard'}`;
+    return 'Dashboard';
+  };
 
   return (
     <div className="flex min-h-screen bg-slate-100 font-sans">
@@ -122,13 +137,15 @@ export default function AdminLayout() {
       />
       <div className="flex flex-1 flex-col md:ml-64">
         <Header 
-          title={currentUser?.grupo_nombre || "Dashboard"} 
+          title={getTitle()} 
           toggleSidebar={toggleSidebar}
         />
-        <main className="flex-1 overflow-y-auto p-4 md:p-8">
-          <Outlet />
-        </main>
-        <Footer />
+        <div className="flex flex-col flex-1">
+          <main className="flex-1 p-4 md:p-8">
+            <Outlet />
+          </main>
+          <Footer />
+        </div>
       </div>
     </div>
   );
