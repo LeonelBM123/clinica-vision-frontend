@@ -16,8 +16,7 @@ export default function GestionarMedico() {
   const [modalMode, setModalMode] = useState('add');
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const API_URL = `${API_BASE_URL}api/medicos/`;
-
+  
   const columns = [
     { key: 'medico', label: 'ID', sortable: true, width: '80px' },
     { key: 'numero_colegiado', label: 'Nro. Colegiado', sortable: true },
