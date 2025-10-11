@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import './styles/Header.css';
-
+import { Navigate, useNavigate }  from 'react-router-dom';
 export default function Header({ title, userName }) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -14,8 +15,8 @@ export default function Header({ title, userName }) {
   };
 
   const handleLogout = () => {
-    console.log("Cerrar sesión");
-    setIsMenuOpen(false);
+    console.log("cierre de sesion exitoso");
+    navigate("/login")
   };
 
   return (

@@ -12,3 +12,4 @@ function PacienteLayout() {
 }
 
 export default PacienteLayout
+

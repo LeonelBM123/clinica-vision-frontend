@@ -2,6 +2,7 @@ import React from "react";
 import GestionarList from "../../components/GestionarList";
 import "../../styles/0x_GestionarMedico.css";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../../config/api";
 
 export default function GestionarPatologias() {
 
@@ -23,7 +24,7 @@ export default function GestionarPatologias() {
   const handleDelete = async (patologia) => {
     if (!window.confirm(`¿Eliminar la patología ${patologia.nombre}?`)) return;
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/patologias/${patologia.id}/`, {
+      const res = await fetch(`${API_BASE_URL}api/citas/patologias/${patologia.id}/`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Error eliminando");
@@ -41,7 +42,7 @@ export default function GestionarPatologias() {
   return (
     <div className="gestionar-patologia-container">
       <GestionarList
-        apiUrl="http://127.0.0.1:8000/api/patologias"
+        apiUrl={`${API_BASE_URL}api/citas/patologias`}
         title="Gestión de Patologías"
         columns={columns}
         onEdit={handleEdit}

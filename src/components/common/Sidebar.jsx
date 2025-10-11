@@ -75,7 +75,7 @@ export default function Sidebar({ menuPackages }) {
                   location.pathname.endsWith("/AdminLayout") ? "active" : ""
                 }`}
               >
-                <span className="sidebar-icon">📊</span>
+                <span className="sidebar-icon">-</span>
                 <span className="sidebar-label">Dashboard</span>
               </Link>
             </li>

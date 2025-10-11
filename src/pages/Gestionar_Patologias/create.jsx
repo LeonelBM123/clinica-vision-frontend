@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/form_patologias.css";
+import { API_BASE_URL } from "../../config/api";
 
 export default function CrearPatologia() {
   const [form, setForm] = useState({
@@ -24,7 +25,7 @@ export default function CrearPatologia() {
     setError("");
     setLoading(true);
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/patologias/", {
+      const res = await fetch(`${API_BASE_URL}api/citas/patologias/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),

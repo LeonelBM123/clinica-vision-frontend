@@ -1,55 +1,62 @@
-import React, { useState, useEffect } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faSort, faSortUp, faSortDown, faPlus } from '@fortawesome/free-solid-svg-icons';
-import Loader from './Loader';
-import "../styles/GestionarList.css";
+import React, { useState, useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faEdit,
+  faTrash,
+  faSort,
+  faSortUp,
+  faSortDown,
+  faPlus,
+} from "@fortawesome/free-solid-svg-icons";
+import Loader from "./Loader";
+import "./styles/GestionarList.css";
 
-export default function GestionarList({ 
-  apiUrl, 
-  title = "Gestión de Datos", 
-  columns = [], 
-  onEdit, 
+export default function GestionarList({
+  apiUrl,
+  title = "Gestión de Datos",
+  columns = [],
+  onEdit,
   onDelete,
   onAdd,
-  refreshKey // renombrado (antes refreshTrigger)
+  refreshTrigger,
 }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error,setError] = useState("");
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
+  const [sortConfig, setSortConfig] = useState({
+    key: null,
+    direction: "ascending",
+  });
 
-  const fetchData = React.useCallback(async (signal) => {
+  useEffect(() => {
+    fetchData();
+  }, [apiUrl, refreshTrigger]);
+
+  const fetchData = async () => {
     if (!apiUrl) {
       setLoading(false);
       return;
     }
+
     try {
-      setError("");
       setLoading(true);
-      const response = await fetch(apiUrl, { signal });
-      if (!response.ok) throw new Error('Error en la petición');
+      const response = await fetch(apiUrl);
+      if (!response.ok) {
+        throw new Error("Error en la petición");
+      }
       const result = await response.json();
       setData(Array.isArray(result) ? result : [result]);
-    } catch (err) {
-      if (err.name !== "AbortError") {
-        console.error('Error fetching data:', err);
-        setError(err.message || "Error al cargar los datos");
-      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      alert("Error al cargar los datos");
     } finally {
-      if (!signal.aborted) setLoading(false);
+      setLoading(false);
     }
-  }, [apiUrl]);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    fetchData(controller.signal);
-    return () => controller.abort();
-  }, [fetchData, refreshKey]); // se actualiza cuando cambia la URL o pides refresh
+  };
 
   const handleSort = (key) => {
-    let direction = 'ascending';
-    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
-      direction = 'descending';
+    let direction = "ascending";
+    if (sortConfig.key === key && sortConfig.direction === "ascending") {
+      direction = "descending";
     }
     setSortConfig({ key, direction });
 
@@ -57,8 +64,8 @@ export default function GestionarList({
       const aValue = getNestedValue(a, key);
       const bValue = getNestedValue(b, key);
 
-      if (aValue < bValue) return direction === 'ascending' ? -1 : 1;
-      if (aValue > bValue) return direction === 'ascending' ? 1 : -1;
+      if (aValue < bValue) return direction === "ascending" ? -1 : 1;
+      if (aValue > bValue) return direction === "ascending" ? 1 : -1;
       return 0;
     });
 
@@ -66,21 +73,21 @@ export default function GestionarList({
   };
 
   const getNestedValue = (obj, path) => {
-    return path.split('.').reduce((current, key) => {
+    return path.split(".").reduce((current, key) => {
       return current ? current[key] : undefined;
     }, obj);
   };
 
   const getSortIcon = (key) => {
     if (sortConfig.key !== key) return faSort;
-    return sortConfig.direction === 'ascending' ? faSortUp : faSortDown;
+    return sortConfig.direction === "ascending" ? faSortUp : faSortDown;
   };
 
   const handleEdit = (item) => {
     if (onEdit) {
       onEdit(item);
     } else {
-      console.log('Editar:', item);
+      console.log("Editar:", item);
     }
   };
 
@@ -88,8 +95,8 @@ export default function GestionarList({
     if (onDelete) {
       onDelete(item);
     } else {
-      if (window.confirm('¿Estás seguro de eliminar este elemento?')) {
-        console.log('Eliminar:', item);
+      if (window.confirm("¿Estás seguro de eliminar este elemento?")) {
+        console.log("Eliminar:", item);
       }
     }
   };
@@ -98,7 +105,7 @@ export default function GestionarList({
     if (onAdd) {
       onAdd();
     } else {
-      console.log('Agregar nuevo');
+      console.log("Agregar nuevo");
     }
   };
 
@@ -117,23 +124,24 @@ export default function GestionarList({
         )}
       </div>
 
-      {error && <div className="error-box">{error}</div>}  
-
       <div className="table-responsive">
         <table className="data-table">
           <thead>
             <tr>
               {columns.map((column) => (
-                <th 
-                  key={column.key} 
+                <th
+                  key={column.key}
                   onClick={() => column.sortable && handleSort(column.key)}
-                  className={column.sortable ? 'sortable-header' : ''}
+                  className={column.sortable ? "sortable-header" : ""}
                   style={{ width: column.width }}
                 >
                   <div className="header-content">
                     <span className="header-label">{column.label}</span>
                     {column.sortable && (
-                      <FontAwesomeIcon icon={getSortIcon(column.key)} className="sort-icon" />
+                      <FontAwesomeIcon
+                        icon={getSortIcon(column.key)}
+                        className="sort-icon"
+                      />
                     )}
                   </div>
                 </th>
@@ -157,19 +165,21 @@ export default function GestionarList({
                 <tr key={index} className="data-row">
                   {columns.map((column) => (
                     <td key={column.key} className="data-cell">
-                      {column.render ? column.render(getNestedValue(item, column.key), item) : getNestedValue(item, column.key)}
+                      {column.render
+                        ? column.render(getNestedValue(item, column.key), item)
+                        : getNestedValue(item, column.key)}
                     </td>
                   ))}
                   <td className="actions-cell">
                     <div className="action-buttons">
-                      <button 
+                      <button
                         className="btn-edit"
                         onClick={() => handleEdit(item)}
                         title="Editar"
                       >
                         <FontAwesomeIcon icon={faEdit} />
                       </button>
-                      <button 
+                      <button
                         className="btn-delete"
                         onClick={() => handleDelete(item)}
                         title="Eliminar"
