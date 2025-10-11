@@ -127,12 +127,6 @@ function Login() {
                     </form>
 
                     <div className="mt-8 text-center">
-                        <p className="text-sm text-gray-600">
-                            ¿No tienes una cuenta?{" "}
-                            <Link to="/register-user" className="font-medium text-blue-600 hover:text-blue-500">
-                                Regístrate aquí
-                            </Link>
-                        </p>
                         <p className="text-sm text-gray-600 mt-2">
                             ¿Quieres dar de alta tu clínica?{" "}
                             <Link to="/register-clinic" className="font-medium text-green-600 hover:text-green-500">

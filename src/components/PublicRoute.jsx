@@ -3,18 +3,13 @@ import authService from '../services/auth';
 
 const PublicRoute = ({ children }) => {
   const isAuthenticated = authService.isAuthenticated();
-  const currentUser = authService.getCurrentUser();
 
+  // Si está autenticado y tiene acceso, redirige al dashboard base
   if (isAuthenticated && authService.canAccessSystem()) {
-    if (authService.isSuperAdmin()) {
-      return <Navigate to="/superadmin" replace />;
-    } else if (authService.isAdmin()) {
-      return <Navigate to="/adminlayout" replace />;
-    } else {
-      return <Navigate to="/userlayout" replace />;
-    }
+    return <Navigate to="/dashboard" replace />;
   }
 
+  // Si no está autenticado, muestra la ruta pública (home, login, etc.)
   return children;
 };
 

@@ -1,51 +1,33 @@
-import React, { useState } from 'react';
-import './styles/Header.css';
-import { Navigate, useNavigate }  from 'react-router-dom';
-export default function Header({ title, userName }) {
+import React from 'react';
+import { Menu } from 'lucide-react';
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const navigate = useNavigate();
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
-  const handleEditProfile = () => {
-    console.log("Editar perfil");
-    setIsMenuOpen(false);
-  };
-
-  const handleLogout = () => {
-    console.log("cierre de sesion exitoso");
-    navigate("/login")
-  };
-
+export default function Header({ title, toggleSidebar }) {
   return (
-    <header className="header-container">
-      <div className="header-left">
-        <h1 className="header-title">{title}</h1>
-      </div>
+    <header className="sticky top-0 z-50 flex h-16 items-center justify-between bg-slate-900 px-4 shadow-md sm:px-6">
       
-      <div className="header-right">
-        <span className="welcome-text">Bienvenido {userName}</span>
-        
-        <div className="dropdown">
-          <button className="header-button" onClick={toggleMenu}>
-            Opciones
-            <span className={`dropdown-arrow ${isMenuOpen ? 'open' : ''}`}>▼</span>
+      {/* Lado izquierdo: Botón hamburguesa */}
+      <div className="flex items-center justify-start w-10">
+        {toggleSidebar && (
+          <button
+            className="p-1.5 text-blue-300 rounded-md transition-colors duration-200 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-slate-900 md:hidden"
+            onClick={toggleSidebar}
+            aria-label="Abrir menú"
+          >
+            <Menu size={24} /> {/* Icono más pequeño para móvil */}
           </button>
-          
-          {isMenuOpen && (
-            <div className="dropdown-menu">
-              <button className="dropdown-item" onClick={handleEditProfile}>
-                Editar perfil
-              </button>
-              <button className="dropdown-item" onClick={handleLogout}>
-                Cerrar sesión
-              </button>
-            </div>
-          )}
-        </div>
+        )}
       </div>
+
+      {/* Centro: Título responsivo y truncado */}
+      <div className="flex-1 flex justify-center items-center min-w-0 mx-2">
+        <h1 className="font-bold tracking-wider uppercase text-blue-200 truncate text-lg sm:text-xl lg:text-2xl">
+          {title}
+        </h1>
+      </div>
+
+      {/* Lado derecho: Espaciador para mantener el título centrado */}
+      <div className="flex items-center justify-end w-10" />
+
     </header>
   );
 }

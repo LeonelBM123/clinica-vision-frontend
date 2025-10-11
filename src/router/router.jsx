@@ -1,7 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import HomePage from "../home/HomePage";
 import Login from "../pages/01_Login";
-import RegisterUser from "../pages/02_RegisterUser";
 import RegisterClinic from "../pages/03_RegisterClinic";
 
 // Layout principal
@@ -45,10 +44,6 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <PublicRoute><Login /></PublicRoute>,
-  },
-  {
-    path: "/register-user",
-    element: <PublicRoute><RegisterUser /></PublicRoute>,
   },
   {
     path: "/register-clinic",
