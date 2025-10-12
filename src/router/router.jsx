@@ -22,6 +22,11 @@ import GestionarPatologias from "../pages/Gestionar_Patologias/index.jsx";
 import CrearPatologia from "../pages/Gestionar_Patologias/create.jsx";
 import EditarPatologia from "../pages/Gestionar_Patologias/edit.jsx";
 
+// Páginas de gestión de medicos
+import GestionarMedicos from "../pages/Gestionar_Medicos/index.jsx";
+import CrearMedico from "../pages/Gestionar_Medicos/create.jsx";
+import EditarMedico from "../pages/Gestionar_Medicos/edit.jsx";
+
 // Páginas de gestión de bitácora
 import GestionarBitacora from "../pages/Gestionar_Bitacora/index";
 
@@ -29,15 +34,27 @@ const router = createBrowserRouter([
   // Rutas públicas
   {
     path: "/",
-    element: <PublicRoute><HomePage /></PublicRoute>,
+    element: (
+      <PublicRoute>
+        <HomePage />
+      </PublicRoute>
+    ),
   },
   {
     path: "/login",
-    element: <PublicRoute><Login /></PublicRoute>,
+    element: (
+      <PublicRoute>
+        <Login />
+      </PublicRoute>
+    ),
   },
   {
     path: "/register-clinic",
-    element: <PublicRoute><RegisterClinic /></PublicRoute>,
+    element: (
+      <PublicRoute>
+        <RegisterClinic />
+      </PublicRoute>
+    ),
   },
   {
     path: "recuperar-password",
@@ -45,7 +62,7 @@ const router = createBrowserRouter([
   },
   // Layout principal - todas las rutas autenticadas usando AdminLayout
 
-  // Layout principal - rutas autenticadas usando AdminLayout
+  // Layout principal - rutas autenticadas usando Layout
   {
     path: "/dashboard",
     element: <AdminLayout />,
@@ -62,6 +79,15 @@ const router = createBrowserRouter([
         children: [
           { path: "nueva", element: <CrearPatologia /> },
           { path: ":id/editar", element: <EditarPatologia /> },
+        ],
+      },
+      // Gestión de Medicos (Admin)
+      {
+        path: "medicos",
+        element: <GestionarMedicos />,
+        children: [
+          { path: "nuevo", element: <CrearMedico /> },
+          { path: ":id/editar", element: <EditarMedico /> },
         ],
       },
 
