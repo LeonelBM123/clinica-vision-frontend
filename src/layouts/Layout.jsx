@@ -65,46 +65,80 @@ const getMenuPackagesByRole = (currentUser) => {
     }
   ];
 
-  if (rol === 'superAdmin') { 
+  if (rol === "superAdmin") {
     return getAllMenuPackages();
-  } 
-  else if (rol === 'administrador') { 
+  } else if (rol === "administrador") {
     return [
       ...baseMenu,
       {
         name: "Gestión de Usuarios",
         items: [
-          { label: "Gestionar Usuarios", path: "usuarios", icon: <UserCircle size={iconSize} /> },
-          { label: "Gestionar Médicos", path: "gestionar-medico", icon: <Stethoscope size={iconSize} /> },
-          { label: "Ver Bitácora", path: "bitacora", icon: <ClipboardList size={iconSize} /> },
-        ]
+          {
+            label: "Gestionar Usuarios",
+            path: "usuarios",
+            icon: <UserCircle size={iconSize} />,
+          },
+          {
+            label: "Gestionar Médicos",
+            path: "medicos",
+            icon: <Stethoscope size={iconSize} />,
+          },
+          {
+            label: "Ver Bitácora",
+            path: "bitacora",
+            icon: <ClipboardList size={iconSize} />,
+          },
+        ],
       },
       {
         name: "Historias Clínicas y Diagnósticos",
         items: [
-          { label: "Patologías", path: "patologias", icon: <HeartPulse size={iconSize} /> },
-          { label: "Tratamientos y Medicación", path: "diagnosticos", icon: <Pill size={iconSize} /> },
-        ]
+          {
+            label: "Patologías",
+            path: "patologias",
+            icon: <HeartPulse size={iconSize} />,
+          },
+          {
+            label: "Tratamientos y Medicación",
+            path: "diagnosticos",
+            icon: <Pill size={iconSize} />,
+          },
+        ],
       },
       {
         name: "Reportes",
         items: [
-          { label: "Reporte de Citas", path: "reporte-citas", icon: <FileText size={iconSize} /> },
-          { label: "Reporte Financiero", path: "reporte-financiero", icon: <CreditCard size={iconSize} /> },
-        ]
-      }
+          {
+            label: "Reporte de Citas",
+            path: "reporte-citas",
+            icon: <FileText size={iconSize} />,
+          },
+          {
+            label: "Reporte Financiero",
+            path: "reporte-financiero",
+            icon: <CreditCard size={iconSize} />,
+          },
+        ],
+      },
     ];
-  } 
-  else if (rol === 'medico') { // ¡Comparación exacta!
+  } else if (rol === "medico") {
     return [
       ...baseMenu,
       {
         name: "Funciones Médicas",
         items: [
-          { label: "Solicitar Cita", path: "solicitar-cita", icon: <Calendar size={iconSize} /> },
-          { label: "Ver Bitácora", path: "bitacora", icon: <ClipboardList size={iconSize} /> },
-        ]
-      }
+          {
+            label: "Solicitar Cita",
+            path: "solicitar-cita",
+            icon: <Calendar size={iconSize} />,
+          },
+          {
+            label: "Ver Bitácora",
+            path: "bitacora",
+            icon: <ClipboardList size={iconSize} />,
+          },
+        ],
+      },
     ];
   }
 
