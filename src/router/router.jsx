@@ -1,14 +1,11 @@
 import { createBrowserRouter } from "react-router-dom";
 import HomePage from "../home/HomePage";
-<<<<<<< HEAD
-import Login from "../pages/01_Login";
-import RegisterUser from "../pages/02_RegisterUser";
-import RegisterClinic from "../pages/03_RegisterClinic";
+//import Login from "../pages/01_Login";
+//import RegisterUser from "../pages/02_RegisterUser";
+//import RegisterClinic from "../pages/03_RegisterClinic";
 import ResetPassword from "../pages/RecuperarPassword"
-=======
 import Login from "../pages/Login.jsx";
 import RegisterClinic from "../pages/RegisterClinic";
->>>>>>> origin/main
 
 // Layout principal
 import AdminLayout from "../layouts/Layout.jsx";
@@ -42,16 +39,13 @@ const router = createBrowserRouter([
     path: "/register-clinic",
     element: <PublicRoute><RegisterClinic /></PublicRoute>,
   },
-<<<<<<< HEAD
   {
     path: "recuperar-password",
     element:<PublicRoute><ResetPassword /></PublicRoute>,
   },
   // Layout principal - todas las rutas autenticadas usando AdminLayout
-=======
 
   // Layout principal - rutas autenticadas usando AdminLayout
->>>>>>> origin/main
   {
     path: "/dashboard",
     element: <AdminLayout />,
