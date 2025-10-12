@@ -240,9 +240,6 @@ function RegisterClinic() {
                             <h3 className="text-xl font-semibold text-blue-800 mb-4">
                                 👤 Datos del Administrador Principal
                             </h3>
-                            <p className="text-blue-600 text-sm mb-4">
-                                Se creará un usuario administrador con contraseña por defecto "123"
-                            </p>
                             
                             <div className="grid md:grid-cols-2 gap-6">
                                 <div>

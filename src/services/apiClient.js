@@ -1,20 +1,20 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = "http://localhost:8000/api";
 
 class ApiClient {
   constructor() {
     this.client = axios.create({
       baseURL: API_BASE_URL,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
     // Interceptor para agregar token automáticamente
     this.client.interceptors.request.use(
       (config) => {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token");
         if (token) {
           config.headers.Authorization = `Token ${token}`;
         }
@@ -28,9 +28,9 @@ class ApiClient {
       (response) => response,
       (error) => {
         if (error.response?.status === 401) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('userData');
-          window.location.href = '/';
+          localStorage.removeItem("token");
+          localStorage.removeItem("userData");
+          window.location.href = "/";
         }
         return Promise.reject(error);
       }
@@ -39,13 +39,13 @@ class ApiClient {
 
   async login(correo, password) {
     try {
-      const response = await this.client.post('/cuentas/usuarios/login/', {
+      const response = await this.client.post("/cuentas/usuarios/login/", {
         correo,
         password,
       });
       return response.data;
     } catch (error) {
-      throw new Error(error.response?.data?.detail || 'Error de autenticación');
+      throw new Error(error.response?.data?.detail || "Error de autenticación");
     }
   }
 
@@ -55,7 +55,9 @@ class ApiClient {
       const response = await this.client.get(url);
       return response.data;
     } catch (error) {
-      throw new Error(error.response?.data?.detail || error.message || 'Error en la petición');
+      throw new Error(
+        error.response?.data?.detail || error.message || "Error en la petición"
+      );
     }
   }
 
@@ -66,8 +68,7 @@ class ApiClient {
     } catch (error) {
       const errorData = error.response?.data;
       if (errorData) {
-        // Si hay errores de validación específicos
-        if (typeof errorData === 'object' && !errorData.detail) {
+        if (typeof errorData === "object" && !errorData.detail) {
           const firstField = Object.keys(errorData)[0];
           const firstError = errorData[firstField];
           if (Array.isArray(firstError)) {
@@ -75,10 +76,11 @@ class ApiClient {
           }
           throw new Error(`${firstField}: ${firstError}`);
         }
-        // Error general
-        throw new Error(errorData.detail || errorData.message || 'Error en la petición');
+        throw new Error(
+          errorData.detail || errorData.message || "Error en la petición"
+        );
       }
-      throw new Error('Error de conexión');
+      throw new Error("Error de conexión");
     }
   }
 
@@ -89,7 +91,7 @@ class ApiClient {
     } catch (error) {
       const errorData = error.response?.data;
       if (errorData) {
-        if (typeof errorData === 'object' && !errorData.detail) {
+        if (typeof errorData === "object" && !errorData.detail) {
           const firstField = Object.keys(errorData)[0];
           const firstError = errorData[firstField];
           if (Array.isArray(firstError)) {
@@ -97,9 +99,11 @@ class ApiClient {
           }
           throw new Error(`${firstField}: ${firstError}`);
         }
-        throw new Error(errorData.detail || errorData.message || 'Error en la petición');
+        throw new Error(
+          errorData.detail || errorData.message || "Error en la petición"
+        );
       }
-      throw new Error('Error de conexión');
+      throw new Error("Error de conexión");
     }
   }
 
@@ -108,8 +112,14 @@ class ApiClient {
       const response = await this.client.delete(url);
       return response.data;
     } catch (error) {
-      throw new Error(error.response?.data?.detail || error.message || 'Error al eliminar');
+      throw new Error(
+        error.response?.data?.detail || error.message || "Error al eliminar"
+      );
     }
+  }
+
+  async createGrupo(data) {
+    return this.post("/cuentas/grupos/", data);
   }
 }
 
