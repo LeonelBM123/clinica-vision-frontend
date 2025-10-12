@@ -57,6 +57,22 @@ class ApiClient {
     });
   }
 
+  async getToken2Reset(correo){
+    return await this.request('cuentas/usuarios/solicitar_reset_token/',{
+      method: 'POST',
+      body : JSON.stringify({correo}),
+      noAuth:true,
+    });
+  }
+
+  async resetPassword(correo,reset_token,new_password){
+    return await this.request('cuentas/usuarios/nueva_password/',{
+      method:'POST',
+      body:JSON.stringify({correo,reset_token,new_password}),
+      noAuth:true,
+    });
+  }
+
   async register(userData) {
     return this.request('cuentas/usuarios/', {
       method: 'POST',

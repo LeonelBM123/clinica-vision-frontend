@@ -3,6 +3,7 @@ import HomePage from "../home/HomePage";
 import Login from "../pages/01_Login";
 import RegisterUser from "../pages/02_RegisterUser";
 import RegisterClinic from "../pages/03_RegisterClinic";
+import ResetPassword from "../pages/RecuperarPassword"
 
 // Layout principal
 import AdminLayout from "../layouts/AdminLayout";
@@ -54,7 +55,10 @@ const router = createBrowserRouter([
     path: "/register-clinic",
     element: <PublicRoute><RegisterClinic /></PublicRoute>,
   },
-
+  {
+    path: "recuperar-password",
+    element:<PublicRoute><ResetPassword /></PublicRoute>,
+  },
   // Layout principal - todas las rutas autenticadas usando AdminLayout
   {
     path: "/dashboard",

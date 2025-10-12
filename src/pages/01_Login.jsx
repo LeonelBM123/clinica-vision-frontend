@@ -139,6 +139,13 @@ function Login() {
                                 Registra tu clínica
                             </Link>
                         </p>
+
+                        <p className="text-sm text-gray-600 mt-2">
+                            ¿Olvidaste tu contraseña?{" "}
+                            <Link to="/recuperar-password" className="font-medium text-green-600 hover:text-green-500">
+                                Haz clic aquí
+                            </Link>
+                        </p>
                     </div>
                     <div className="mt-6 text-center">
                         <Link
