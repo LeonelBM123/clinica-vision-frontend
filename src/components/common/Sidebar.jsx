@@ -1,129 +1,126 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import "./styles/Sidebar.css";
+import { ChevronDown, Eye, X, LogOut } from 'lucide-react';
+import authService from '../../services/auth';
 
-export default function Sidebar({ menuPackages }) {
+export default function Sidebar({ menuPackages, isSidebarOpen, toggleSidebar }) {
   const location = useLocation();
   const [openPackages, setOpenPackages] = useState({});
-  const [openSide, setOpenSide] = useState(false);
 
   const togglePackage = (packageName) => {
-    setOpenPackages((prev) => ({
+    setOpenPackages(prev => ({
       ...prev,
       [packageName]: !prev[packageName],
     }));
   };
 
-  const toggleSidebar = () => {
-    setOpenSide(!openSide);
+  const handleLinkClick = () => {
+    if (isSidebarOpen && window.innerWidth < 768) {
+      toggleSidebar();
+    }
   };
 
-  // Función para verificar si la ruta está activa
-  const isActive = (path) => {
-    // Para la ruta por defecto (index)
-    if (path === "" && location.pathname.endsWith("/AdminLayout")) {
-      return true;
-    }
+  const handleLogout = () => {
+    authService.logout();
+  };
 
-    // Para rutas hijas
-    return (
-      location.pathname.endsWith(`/AdminLayout/${path}`) ||
-      location.pathname.endsWith(`/AdminLayout/${path}/`)
-    );
+  const isActive = (path) => {
+    const basePath = "/AdminLayout";
+    if (path === "" || path === "/") {
+      return location.pathname === basePath || location.pathname === `${basePath}/`;
+    }
+    return location.pathname.startsWith(`${basePath}/${path}`);
   };
 
   return (
     <>
-      <button
-        className="hamburger-btn"
-        onClick={toggleSidebar}
-        aria-label="Toggle menu"
-      >
-        ☰
-      </button>
-      {openSide && (
+      {isSidebarOpen && (
         <div
-          className="sidebar-overlay"
+          className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[999]"
           onClick={toggleSidebar}
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
-            background: "rgba(0,0,0,0.3)",
-            zIndex: 899,
-          }}
         />
       )}
-      <aside className={`sidebar ${openSide ? "open" : ""}`}>
-        <div className="sidebar-header">
-          <h2
-            style={{ textAlign: "center", color: "black", fontWeight: "bold" }}
+
+      <aside 
+        className={`fixed inset-y-0 left-0 z-[1000] flex w-64 flex-col bg-slate-900 text-gray-300 shadow-2xl transition-transform duration-300 ease-in-out md:translate-x-0 ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="flex h-16 items-center justify-between border-b border-slate-700 p-4">
+          <div className="flex items-center">
+            <Eye className="text-teal-400" size={28} />
+            <h2 className="ml-3 text-2xl font-bold text-white">
+              Visionex
+            </h2>
+          </div>
+          <button
+            className="md:hidden p-2 text-slate-400 transition-colors duration-200 hover:bg-slate-800 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+            onClick={toggleSidebar}
+            aria-label="Cerrar menú"
           >
-            Panel de Administración
-          </h2>
+            <X size={24} />
+          </button>
         </div>
 
-        <nav className="sidebar-nav">
-          <ul className="sidebar-menu">
-            {/* Enlace al dashboard (ruta por defecto) */}
-            <li className="sidebar-item">
-              <Link
-                to=""
-                className={`sidebar-link ${
-                  location.pathname.endsWith("/AdminLayout") ? "active" : ""
-                }`}
-              >
-                <span className="sidebar-icon">-</span>
-                <span className="sidebar-label">Dashboard</span>
-              </Link>
-            </li>
-
+        <nav className="flex-1 overflow-y-auto p-4">
+          <ul className="space-y-2">
             {menuPackages.map((pkg, index) => (
-              <li key={index} className="sidebar-package">
+              <li key={index}>
                 <div
-                  className="sidebar-package-header"
+                  className="flex cursor-pointer items-center justify-between rounded-lg px-4 py-3 text-sm font-semibold text-slate-400 transition-colors hover:bg-slate-800 hover:text-white"
                   onClick={() => togglePackage(pkg.name)}
                 >
-                  <span className="package-name">{pkg.name}</span>
-                  <span
-                    className={`package-arrow ${
-                      openPackages[pkg.name] ? "open" : ""
+                  <span className="uppercase tracking-wider">{pkg.name}</span>
+                  <ChevronDown
+                    size={20}
+                    className={`transform transition-transform duration-50 ${
+                      openPackages[pkg.name] ? "rotate-180" : ""
                     }`}
-                  >
-                    ▼
-                  </span>
+                  />
                 </div>
-
-                <ul
-                  className={`package-items ${
-                    openPackages[pkg.name] ? "open" : ""
-                  }`}
-                >
-                  {pkg.items.map((item, itemIndex) => (
-                    <li key={itemIndex} className="sidebar-item">
-                      <Link
-                        to={item.path}
-                        className={`sidebar-link ${
-                          isActive(item.path) ? "active" : ""
-                        }`}
-                      >
-                        {item.icon && (
-                          <span className="sidebar-icon">{item.icon}</span>
-                        )}
-                        <span className="sidebar-label">{item.label}</span>
-                      </Link>
-                    </li>
-                  ))}
+                <ul className={`overflow-hidden transition-all duration-100 ease-in-out ${openPackages[pkg.name] ? 'max-h-[500px] mt-1' : 'max-h-0'}`}>
+                   {pkg.items.map((item, itemIndex) => {
+                      const active = isActive(item.path);
+                      return (
+                        <li key={itemIndex}>
+                          <Link
+                            to={item.path}
+                            onClick={handleLinkClick}
+                            className={`relative flex items-center rounded-lg py-2.5 pl-11 pr-3 text-sm transition-all duration-200 group ${
+                              active
+                                ? "bg-teal-600 text-white font-semibold shadow-md"
+                                : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                            }`}
+                          >
+                            <div className={`absolute left-0 h-full w-1 rounded-r-full transition-all ${active ? 'bg-teal-300' : 'bg-transparent'}`}></div>
+                            <span className={`transition-colors ${active ? 'text-white' : 'text-slate-400 group-hover:text-teal-400'}`}>
+                              {item.icon}
+                            </span>
+                            <span className="ml-4">{item.label}</span>
+                          </Link>
+                        </li>
+                      );
+                   })}
                 </ul>
               </li>
             ))}
           </ul>
         </nav>
 
-        <div className="sidebar-footer">
-          <p>Sistema de Administración v1.0</p>
+        {/* Pie del Sidebar y botón de cerrar sesión */}
+        <div className="border-t border-slate-700 p-4">
+          <button
+            onClick={handleLogout}
+            className="flex items-center w-full px-3 py-2 text-sm font-bold tracking-widest
+              text-blue-100 bg-slate-800 rounded-lg shadow hover:bg-red-800 hover:text-white
+              transition-all duration-150 border border-slate-700"
+          >
+            <LogOut className="w-5 h-5 mr-3 text-blue-300" />
+            CERRAR SESIÓN
+          </button>
+          <p className="text-center text-xs text-slate-500 mt-4">
+            © {new Date().getFullYear()} Visionex Admin
+          </p>
         </div>
       </aside>
     </>

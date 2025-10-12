@@ -1,132 +1,182 @@
-const API_BASE_URL = 'http://localhost:8000/api/';
+import axios from 'axios';
+
+const API_BASE_URL = 'http://localhost:8000/api';
 
 class ApiClient {
   constructor() {
-    this.baseURL = API_BASE_URL;
+    this.client = axios.create({
+      baseURL: API_BASE_URL,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    // Interceptor para agregar token automáticamente
+    this.client.interceptors.request.use(
+      (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+          config.headers.Authorization = `Token ${token}`;
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+
+    // Interceptor para manejar respuestas de error
+    this.client.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('userData');
+          window.location.href = '/';
+        }
+        return Promise.reject(error);
+      }
+    );
   }
 
-  async request(endpoint, options = {}) {
-    const url = `${this.baseURL}${endpoint}`;
-    const token = localStorage.getItem('token');
-    const noAuth = options.noAuth || false;
-
-    const headers = {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    };
-
-    if (token && !noAuth) {
-      headers['Authorization'] = `Token ${token}`;
-    }
-
-    const config = {
-      headers,
-      ...options,
-    };
-
+  async login(correo, password) {
     try {
-      const response = await fetch(url, config);
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || errorData.detail || `HTTP ${response.status}`);
-      }
-
-      return await response.json();
+      const response = await this.client.post('/cuentas/usuarios/login/', {
+        correo,
+        password,
+      });
+      return response.data;
     } catch (error) {
-      console.error(`API Error [${endpoint}]:`, error);
-      throw error;
+      throw new Error(error.response?.data?.detail || 'Error de autenticación');
+    }
+  }
+
+  // Métodos simples y directos
+  async get(url) {
+    try {
+      const response = await this.client.get(url);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.detail || error.message || 'Error en la petición');
     }
   }
 
   // Auth endpoints
-  async login(correo, password) {
-    return this.request('cuentas/usuarios/login/', {
-      method: 'POST',
-      body: JSON.stringify({ correo, password }),
-      noAuth: true,
-    });
+
+  async logout() {
+    try {
+      const response = await this.client.post('cuentas/usuarios/logout/');
+      localStorage.removeItem('token'); // Clear token on successful logout
+      localStorage.removeItem('userData');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.detail || error.message || 'Error al cerrar sesión');
+    }
   }
 
-  async logout(){
-    return this.request('cuentas/usuarios/logout/',{
-      method:'POST',
-      headers:{
-        'Authorization': `Token ${localStorage.getItem('token')}`
-      }
-    });
+  async getToken2Reset(correo) {
+    try {
+      const response = await this.client.post('cuentas/usuarios/solicitar_reset_token/', { correo });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.detail || error.message || 'Error al solicitar token de reseteo');
+    }
   }
 
-  async getToken2Reset(correo){
-    return await this.request('cuentas/usuarios/solicitar_reset_token/',{
-      method: 'POST',
-      body : JSON.stringify({correo}),
-      noAuth:true,
-    });
-  }
-
-  async resetPassword(correo,reset_token,new_password){
-    return await this.request('cuentas/usuarios/nueva_password/',{
-      method:'POST',
-      body:JSON.stringify({correo,reset_token,new_password}),
-      noAuth:true,
-    });
+  async resetPassword(correo, reset_token, new_password) {
+    try {
+      const response = await this.client.post('cuentas/usuarios/nueva_password/', { correo, reset_token, new_password });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.detail || error.message || 'Error al restablecer contraseña');
+    }
   }
 
   async register(userData) {
-    return this.request('cuentas/usuarios/', {
-      method: 'POST',
-      body: JSON.stringify(userData),
-      noAuth: true,
-    });
+    try {
+      const response = await this.client.post('cuentas/usuarios/', userData);
+      return response.data;
+    } catch (error) {
+      const errorData = error.response?.data;
+      if (errorData) {
+        if (typeof errorData === 'object' && !errorData.detail) {
+          const firstField = Object.keys(errorData)[0];
+          const firstError = errorData[firstField];
+          if (Array.isArray(firstError)) {
+            throw new Error(`${firstField}: ${firstError[0]}`);
+          }
+          throw new Error(`${firstField}: ${firstError}`);
+        }
+        throw new Error(errorData.detail || errorData.message || 'Error en el registro');
+      }
+      throw new Error('Error de conexión');
+    }
   }
 
   // Grupos endpoints
   async getGrupos() {
-    return this.request('cuentas/grupos/', { noAuth: true });
+    try {
+      const response = await this.client.get('cuentas/grupos/');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.detail || error.message || 'Error al obtener grupos');
+    }
+  }
+  async post(url, data) {
+    try {
+      const response = await this.client.post(url, data);
+      return response.data;
+    } catch (error) {
+      const errorData = error.response?.data;
+      if (errorData) {
+        // Si hay errores de validación específicos
+        if (typeof errorData === 'object' && !errorData.detail) {
+          const firstField = Object.keys(errorData)[0];
+          const firstError = errorData[firstField];
+          if (Array.isArray(firstError)) {
+            throw new Error(`${firstField}: ${firstError[0]}`);
+          }
+          throw new Error(`${firstField}: ${firstError}`);
+        }
+        // Error general
+        throw new Error(errorData.detail || errorData.message || 'Error en la petición');
+      }
+      throw new Error('Error de conexión');
+    }
   }
 
-  async createGrupo(grupoData) {
-    return this.request('cuentas/grupos/', {
-      method: 'POST',
-      body: JSON.stringify(grupoData),
-      noAuth: true,
-    });
+  async put(url, data) {
+    try {
+      const response = await this.client.put(url, data);
+      return response.data;
+    } catch (error) {
+      const errorData = error.response?.data;
+      if (errorData) {
+        if (typeof errorData === 'object' && !errorData.detail) {
+          const firstField = Object.keys(errorData)[0];
+          const firstError = errorData[firstField];
+          if (Array.isArray(firstError)) {
+            throw new Error(`${firstField}: ${firstError[0]}`);
+          }
+          throw new Error(`${firstField}: ${firstError}`);
+        }
+        throw new Error(errorData.detail || errorData.message || 'Error en la petición');
+      }
+      throw new Error('Error de conexión');
+    }
   }
 
-  async updateGrupo(id, grupoData) {
-    return this.request(`cuentas/grupos/${id}/`, {
-      method: 'PUT',
-      body: JSON.stringify(grupoData),
-    });
-  }
-
-  // Pagos endpoints
-  async getPagos() {
-    return this.request('cuentas/pagos/');
-  }
-
-  async createPago(pagoData) {
-    return this.request('cuentas/pagos/', {
-      method: 'POST',
-      body: JSON.stringify(pagoData),
-    });
-  }
-
-  async marcarPagoPagado(id) {
-    return this.request(`cuentas/pagos/${id}/marcar_pagado/`, {
-      method: 'POST',
-    });
-  }
-
-  // Usuarios endpoints
-  async getUsuarios() {
-    return this.request('cuentas/usuarios/');
-  }
-
-  async getRoles() {
-    return this.request('cuentas/roles/');
+  async delete(url) {
+    try {
+      const response = await this.client.delete(url);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.detail || error.message || 'Error al eliminar');
+    }
   }
 }
 
-export default new ApiClient();
+// Crear una instancia única
+const apiClient = new ApiClient();
+
+// Exportar tanto la instancia como la clase
+export { apiClient as api };
+export default apiClient;

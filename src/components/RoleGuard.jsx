@@ -7,7 +7,7 @@ const RoleGuard = ({
   requireAdmin = false,
   fallback = null 
 }) => {
-  const userRole = authService.getCurrentUser()?.rol?.toLowerCase();
+  const userRole = authService.getCurrentUser()?.rol; 
 
   // Verificar si tiene permisos
   let hasAccess = false;
