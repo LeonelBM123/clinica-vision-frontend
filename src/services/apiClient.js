@@ -1,6 +1,6 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = "http://localhost:8000/api";
 
 class ApiClient {
   constructor() {
@@ -63,16 +63,26 @@ class ApiClient {
 
   // Auth endpoints
 
-  async logout() {
-    try {
-      const response = await this.client.post('cuentas/usuarios/logout/');
-      localStorage.removeItem('token'); // Clear token on successful logout
-      localStorage.removeItem('userData');
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.detail || error.message || 'Error al cerrar sesión');
-    }
+ async logout() {
+  try {
+    const response = await this.client.post('cuentas/usuarios/logout/',
+      {},
+      {
+        headers:{
+          Authorization: localStorage.getItem('token')
+        }
+    });
+    localStorage.removeItem('token');
+    localStorage.removeItem('userData');
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.detail || error.message || 'Error al cerrar sesión'
+    );
   }
+}
+
+
 
   async getToken2Reset(correo) {
     try {

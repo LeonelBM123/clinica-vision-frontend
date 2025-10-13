@@ -1,8 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
 import HomePage from "../home/HomePage";
-//import Login from "../pages/01_Login";
-//import RegisterUser from "../pages/02_RegisterUser";
-//import RegisterClinic from "../pages/03_RegisterClinic";
 import ResetPassword from "../pages/RecuperarPassword"
 import Login from "../pages/Login.jsx";
 import RegisterClinic from "../pages/RegisterClinic";
@@ -21,6 +18,11 @@ import AdminDashboard from "../pages/AdminDashboard.jsx";
 import GestionarPatologias from "../pages/Gestionar_Patologias/index.jsx";
 import CrearPatologia from "../pages/Gestionar_Patologias/create.jsx";
 import EditarPatologia from "../pages/Gestionar_Patologias/edit.jsx";
+
+// paginas de gestion tratamientos
+import GestionarTratamientos from "../pages/Gestionar_Tratamientos/index.jsx";
+import CrearTratamiento from "../pages/Gestionar_Tratamientos/create.jsx";
+import EditarTratamiento from "../pages/Gestionar_Tratamientos/edit.jsx";
 
 // Páginas de gestión de medicos
 import GestionarMedicos from "../pages/Gestionar_Medicos/index.jsx";
@@ -81,6 +83,16 @@ const router = createBrowserRouter([
           { path: ":id/editar", element: <EditarPatologia /> },
         ],
       },
+      // Gestión de Tratamientos (Admin y Doctor)
+      {
+        path: "tratamientos",
+        element: <GestionarTratamientos />,
+        children: [
+          { path: "nuevo", element: <CrearTratamiento /> },
+          { path: ":id/editar", element: <EditarTratamiento /> },
+        ],
+      },
+
       // Gestión de Medicos (Admin)
       {
         path: "medicos",

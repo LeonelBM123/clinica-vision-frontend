@@ -29,7 +29,7 @@ const getAllMenuPackages = () => {
       items: [
         { label: "Gestionar Grupos", path: "grupos", icon: <Building size={20} /> },
         { label: "Gestionar Usuarios", path: "usuarios", icon: <UserCircle size={20} /> },
-        { label: "Gestionar Médicos", path: "gestionar-medico", icon: <Stethoscope size={20} /> },
+        { label: "Gestionar Médicos", path: "medicos", icon: <Stethoscope size={20} /> },
         { label: "Gestionar Patologías", path: "patologias", icon: <HeartPulse size={20} /> },
         { label: "Ver Bitácora", path: "bitacora", icon: <ClipboardList size={20} /> },
       ]
@@ -100,7 +100,7 @@ const getMenuPackagesByRole = (currentUser) => {
           },
           {
             label: "Tratamientos y Medicación",
-            path: "diagnosticos",
+            path: "tratamientos",
             icon: <Pill size={iconSize} />,
           },
         ],
@@ -125,17 +125,17 @@ const getMenuPackagesByRole = (currentUser) => {
     return [
       ...baseMenu,
       {
-        name: "Funciones Médicas",
+        name: "Patologias y Tratamientos",
         items: [
           {
-            label: "Solicitar Cita",
-            path: "solicitar-cita",
-            icon: <Calendar size={iconSize} />,
+            label: "patologias",
+            path: "patologias",
+            icon: <HeartPulse size={iconSize} />,
           },
           {
-            label: "Ver Bitácora",
-            path: "bitacora",
-            icon: <ClipboardList size={iconSize} />,
+            label: "Tratamientos",
+            path: "tratamientos",
+            icon: <Pill size={iconSize} />,
           },
         ],
       },

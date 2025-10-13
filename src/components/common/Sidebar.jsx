@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ChevronDown, Eye, X, LogOut } from 'lucide-react';
 import authService from '../../services/auth';
+import apiClient from '../../services/apiClient';
 
 export default function Sidebar({ menuPackages, isSidebarOpen, toggleSidebar }) {
   const location = useLocation();
@@ -20,8 +21,9 @@ export default function Sidebar({ menuPackages, isSidebarOpen, toggleSidebar }) 
     }
   };
 
-  const handleLogout = () => {
-    authService.logout();
+  const handleLogout =async () => {
+    await apiClient.logout();
+    window.location.href='/';
   };
 
   const isActive = (path) => {

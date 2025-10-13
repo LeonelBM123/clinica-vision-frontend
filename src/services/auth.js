@@ -52,7 +52,7 @@ class AuthService {
   }
 
   logout() {
-    this.clearUserFromStorage();
+    apiClient.logout();
     window.location.href = '/'; 
   }
 
