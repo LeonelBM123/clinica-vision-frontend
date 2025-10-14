@@ -15,7 +15,7 @@ export default function GestionarBitacora() {
         setLoading(true);
         setError(null);
         try {
-            const res = await fetch(`${API_BASE_URL}api/acounts/bitacoras/`, {
+            const res = await fetch(`${API_BASE_URL}api/cuentas/bitacoras/`, {
                 headers: {
                     "Content-Type": "application/json",
                     ...(token ? { Authorization: `Token ${token}` } : {})
@@ -79,10 +79,12 @@ export default function GestionarBitacora() {
                             <tr key={r.id}>
                                 <td style={{ border: "1px solid #ddd", padding: 6 }}>{r.id}</td>
                                 <td style={{ border: "1px solid #ddd", padding: 6 }}>
-                                    {new Date(r.timestamp).toLocaleString()}
+                                    {new Date(r.timestamp).toLocaleString("es-BO", {
+                                        timeZone: "America/La_Paz"
+                                    })}
                                 </td>
                                 <td style={{ border: "1px solid #ddd", padding: 6 }}>
-                                    {r.usuario?.nombre || "Anónimo"}
+                                    {r.usuario || "Anónimo"}
                                 </td>
                                 <td style={{ border: "1px solid #ddd", padding: 6 }}>{r.accion}</td>
                                 <td style={{ border: "1px solid #ddd", padding: 6 }}>{r.objeto}</td>
