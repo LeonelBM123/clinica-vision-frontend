@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, AlertCircle, Loader } from "lucide-react";
-import MedicoForm from "../../components/Form/MedicoForm.jsx";
+import BloqueHorarioForm from "../../components/Form/BloqueHorarioForm.jsx";
 import { api } from "../../services/apiClient.js";
 
-export default function EditarMedico() {
+export default function EditarBloqueHorario() {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState(null);
-  const [especialidades, setEspecialidades] = useState([]);
+  const [medicos, setMedicos] = useState([]);
+  const [tiposAtencion, setTiposAtencion] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -18,16 +19,16 @@ export default function EditarMedico() {
     setLoading(true);
     setError("");
 
-    // Cargar médico y especialidades en paralelo
+    // Cargar bloque horario, médicos y tipos de atención en paralelo
     Promise.all([
-      api.get(`/doctores/medicos/${id}/`),
-      api.get("/doctores/especialidades/"), // Ajusta la URL según tu API
+      api.get(`/doctores/bloques-horarios/${id}/`),
+      api.get("/doctores/medicos/"),
+      api.get("/doctores/tipos-atencion/"),
     ])
-      .then(([medicoData, especialidadesData]) => {
-        setFormData(medicoData);
-        setEspecialidades(
-          Array.isArray(especialidadesData) ? especialidadesData : []
-        );
+      .then(([bloqueData, medicosData, tiposData]) => {
+        setFormData(bloqueData);
+        setMedicos(Array.isArray(medicosData) ? medicosData : []);
+        setTiposAtencion(Array.isArray(tiposData) ? tiposData : []);
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
@@ -37,10 +38,10 @@ export default function EditarMedico() {
     setSaving(true);
     setError("");
     api
-      .patch(`/doctores/medicos/${id}/`, data)
+      .patch(`/doctores/bloques-horarios/${id}/`, data)
       .then(() => {
         // Recarga automática y navegación
-        navigate("/dashboard/medicos");
+        navigate("/dashboard/bloques-horarios");
         window.location.reload();
       })
       .catch((e) => setError(e.message))
@@ -55,7 +56,7 @@ export default function EditarMedico() {
             <div className="text-center">
               <Loader className="animate-spin h-12 w-12 text-blue-600 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Cargando médico...
+                Cargando bloque horario...
               </h3>
               <p className="text-gray-600">Por favor espere un momento</p>
             </div>
@@ -81,11 +82,11 @@ export default function EditarMedico() {
             <div className="h-6 w-px bg-gray-300"></div>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
-                Editar Médico
+                Editar Bloque Horario
               </h1>
               <p className="text-gray-600 mt-1">
-                Modificando médico <span className="font-medium">#{id}</span>
-                {formData?.nombre && ` - ${formData.nombre}`}
+                Modificando bloque <span className="font-medium">#{id}</span>
+                {formData?.medico_nombre && ` - ${formData.medico_nombre}`}
               </p>
             </div>
           </div>
@@ -97,9 +98,25 @@ export default function EditarMedico() {
             <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
             <div>
               <h3 className="text-red-800 font-semibold">
-                Error al editar médico
+                Error al editar bloque horario
               </h3>
               <p className="text-red-600 text-sm">{error}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Advertencia si no es modificable */}
+        {formData && !formData.puede_modificar && (
+          <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-xl flex items-center gap-3">
+            <AlertCircle className="text-orange-600 flex-shrink-0" size={20} />
+            <div>
+              <h3 className="text-orange-800 font-semibold">
+                Bloque no modificable
+              </h3>
+              <p className="text-orange-600 text-sm">
+                {formData.motivo_no_modificable ||
+                  "No se puede modificar por reglas del sistema"}
+              </p>
             </div>
           </div>
         )}
@@ -108,21 +125,23 @@ export default function EditarMedico() {
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
           <div className="px-6 py-4 bg-gradient-to-r from-amber-50 to-white border-b border-gray-200">
             <h2 className="text-xl font-bold text-gray-900">
-              Modificar Información
+              Modificar Horario
             </h2>
             <p className="text-gray-600 text-sm mt-1">
-              Actualice los datos del médico
+              Actualice los datos del bloque horario
             </p>
           </div>
 
           <div className="p-6">
-            <MedicoForm
-              initialMedico={formData}
-              especialidadesOptions={especialidades}
+            <BloqueHorarioForm
+              initialBloque={formData}
+              medicosOptions={medicos}
+              tiposAtencionOptions={tiposAtencion}
               onSubmit={handleSubmit}
-              onCancel={() => navigate("/dashboard/medicos")}
+              onCancel={() => navigate("/dashboard/bloques-horarios")}
               loading={saving}
               isEditMode={true}
+              puedeModificar={formData?.puede_modificar}
             />
           </div>
         </div>

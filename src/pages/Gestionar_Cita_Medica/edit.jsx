@@ -1,49 +1,44 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, AlertCircle, Loader } from "lucide-react";
-import PacienteForm from "../../components/Form/PacienteForm";
-import { api } from "../../services/apiClient";
+import CitaForm from "../../components/Form/CitaForm.jsx";
+import { api } from "../../services/apiClient.js";
 
-export default function EditarPaciente() {
+export default function EditarCitaMedica() {
   const { id } = useParams();
   const navigate = useNavigate();
-
-  const [formData, setFormData] = useState(null);
-  const [usuarios, setUsuarios] = useState([]);
-  const [patologias, setPatologias] = useState([]);
+  const [initialData, setInitialData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     setLoading(true);
-    setError("");
-
-    Promise.all([
-      api.get(`/diagnosticos/pacientes/${id}/`),
-      api.get(`/cuentas/usuarios/?rol=paciente`),
-      api.get(`/diagnosticos/patologias/`),
-    ])
-      .then(([pacienteData, usuariosData, patologiasData]) => {
-        setFormData(pacienteData);
-        setUsuarios(Array.isArray(usuariosData) ? usuariosData : []);
-        setPatologias(Array.isArray(patologiasData) ? patologiasData : []);
+    api
+      .get(`/citas_pagos/citas-medicas/${id}/`)
+      .then((data) => {
+        setInitialData(data);
       })
-      .catch((e) => setError(e.message || "Error cargando datos"))
+      .catch((e) => {
+        setError(e.message || "Error al cargar los datos de la cita");
+      })
       .finally(() => setLoading(false));
   }, [id]);
 
-  function handleSubmit(data) {
+  const handleSubmit = (data) => {
     setSaving(true);
     setError("");
-    api.patch(`/diagnosticos/pacientes/${id}/`, data)
+    // Para editar, es común usar PATCH en lugar de PUT si no se envían todos los campos
+    api
+      .patch(`/citas_pagos/citas-medicas/${id}/`, data)
       .then(() => {
-        navigate(`/dashboard/pacientes`);
+        navigate("/dashboard/citas-medicas");
         window.location.reload();
       })
-      .catch((e) => setError(e.message || "Error guardando paciente"))
+      .catch((e) => setError(e.message || "Error al actualizar la cita"))
       .finally(() => setSaving(false));
-  }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 py-6">
@@ -52,9 +47,9 @@ export default function EditarPaciente() {
             <div className="text-center">
               <Loader className="animate-spin h-12 w-12 text-blue-600 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Cargando paciente...
+                Cargando Cita...
               </h3>
-              <p className="text-gray-600">Por favor espere un momento</p>
+              <p className="text-gray-600">Por favor espere un momento.</p>
             </div>
           </div>
         </div>
@@ -78,58 +73,43 @@ export default function EditarPaciente() {
             <div className="h-6 w-px bg-gray-300"></div>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
-                Editar Paciente
+                Editar Cita Médica
               </h1>
               <p className="text-gray-600 mt-1">
-                Modificando paciente <span className="font-medium">#{id}</span>
-                {formData?.nombre && ` - ${formData.nombre}`}
+                Modificando cita <span className="font-medium">#{id}</span>
+                {initialData?.paciente_nombre &&
+                  ` - ${initialData.paciente_nombre}`}
               </p>
             </div>
           </div>
         </div>
 
-        {/* Error */}
+        {/* Mensaje de Error */}
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3">
             <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
             <div>
               <h3 className="text-red-800 font-semibold">
-                Error al editar paciente
+                Error al cargar o guardar
               </h3>
               <p className="text-red-600 text-sm">{error}</p>
             </div>
           </div>
         )}
 
-        {/* Formulario */}
+        {/* Contenedor del Formulario */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-          <div className="px-6 py-4 bg-gradient-to-r from-amber-50 to-white border-b border-gray-200">
-            <h2 className="text-xl font-bold text-gray-900">
-              Modificar Información
-            </h2>
-            <p className="text-gray-600 text-sm mt-1">
-              Actualice los datos del paciente
-            </p>
-          </div>
-
           <div className="p-6">
-            <PacienteForm
-              initialPaciente={formData}
-              usuariosOptions={usuarios}
-              patologiasOptions={patologias}
-              onSubmit={handleSubmit}
-              onCancel={() => navigate("/dashboard/pacientes")}
-              loading={saving}
-              isEditMode={true}
-            />
+            {initialData && (
+              <CitaForm
+                initialCita={initialData}
+                onSubmit={handleSubmit}
+                onCancel={() => navigate("/dashboard/citas-medicas")}
+                loading={saving}
+                isEditMode={true}
+              />
+            )}
           </div>
-        </div>
-
-        {/* Footer informativo */}
-        <div className="mt-8 text-center text-gray-500 text-sm">
-          <p>
-            Los cambios se guardarán automáticamente al enviar el formulario
-          </p>
         </div>
       </div>
     </div>
