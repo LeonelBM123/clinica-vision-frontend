@@ -29,6 +29,17 @@ import GestionarMedicos from "../pages/Gestionar_Medicos/index.jsx";
 import CrearMedico from "../pages/Gestionar_Medicos/create.jsx";
 import EditarMedico from "../pages/Gestionar_Medicos/edit.jsx";
 
+// Páginas de gestión de citas
+import GestionarCitasMedicas from "../pages/Gestionar_Cita_Medica/index.jsx";
+import CrearCitaMedica from "../pages/Gestionar_Cita_Medica/create.jsx";
+import EditarCitaMedica from "../pages/Gestionar_Cita_Medica/edit.jsx";
+
+// Páginas de Bloque Horario
+import BloqueHorario from "../pages/Bloque_Horario/index.jsx";
+import CrearBloqueHorario from "../pages/Bloque_Horario/create.jsx";
+import EditarBloqueHorario from "../pages/Bloque_Horario/edit.jsx";
+
+
 // Páginas de gestión de bitácora
 import GestionarBitacora from "../pages/Gestionar_Bitacora/index";
 
@@ -60,7 +71,11 @@ const router = createBrowserRouter([
   },
   {
     path: "recuperar-password",
-    element:<PublicRoute><ResetPassword /></PublicRoute>,
+    element: (
+      <PublicRoute>
+        <ResetPassword />
+      </PublicRoute>
+    ),
   },
   // Layout principal - todas las rutas autenticadas usando AdminLayout
 
@@ -100,6 +115,26 @@ const router = createBrowserRouter([
         children: [
           { path: "nuevo", element: <CrearMedico /> },
           { path: ":id/editar", element: <EditarMedico /> },
+        ],
+      },
+
+      // Gestión de citas medicas (Doctor)
+      {
+        path: "gestionar-citas",
+        element: <GestionarCitasMedicas />,
+        children: [
+          { path: "nueva", element: <CrearCitaMedica /> },
+          { path: ":id/editar", element: <EditarCitaMedica /> },
+        ],
+      },
+      
+      // Gestión de Bloque Horario (Doctor)
+      {
+        path: "bloque-horario",
+        element: <BloqueHorario />,
+        children: [
+          { path: "nuevo", element: <CrearBloqueHorario /> },
+          { path: ":id/editar", element: <EditarBloqueHorario /> },
         ],
       },
 

@@ -6,19 +6,31 @@ import Footer from "../components/common/Footer";
 import authService from '../services/auth';
 
 // Los mismos iconos, pero aumentaremos ligeramente su tamaño para mejor visibilidad
-import { 
-  Home, Users, FileText, Building, UserCircle, Stethoscope, 
-  HeartPulse, ClipboardList, PieChart, Settings, Calendar,
-  Pill, Box, CreditCard, Eye // Asegúrate de que Eye esté importado para el logo del sidebar
-} from 'lucide-react';
+import {
+  Home,
+  Users,
+  FileText,
+  Building,
+  UserCircle,
+  Stethoscope,
+  HeartPulse,
+  ClipboardList,
+  PieChart,
+  Settings,
+  Calendar,
+  Pill,
+  Box,
+  CreditCard,
+  Eye,
+  CalendarRange,
+  CalendarPlus2,
+} from "lucide-react";
 
 const getAllMenuPackages = () => {
   const baseMenu = [
     {
       name: "Dashboard",
-      items: [
-        { label: "Panel Principal", path: "", icon: <Home size={20} /> },
-      ]
+      items: [{ label: "Panel Principal", path: "", icon: <Home size={20} /> }],
     },
   ];
 
@@ -27,26 +39,54 @@ const getAllMenuPackages = () => {
     {
       name: "Gestión del Sistema",
       items: [
-        { label: "Gestionar Grupos", path: "grupos", icon: <Building size={20} /> },
-        { label: "Gestionar Usuarios", path: "usuarios", icon: <UserCircle size={20} /> },
-        { label: "Gestionar Médicos", path: "medicos", icon: <Stethoscope size={20} /> },
-        { label: "Gestionar Patologías", path: "patologias", icon: <HeartPulse size={20} /> },
-        { label: "Ver Bitácora", path: "bitacora", icon: <ClipboardList size={20} /> },
-      ]
+        {
+          label: "Gestionar Grupos",
+          path: "grupos",
+          icon: <Building size={20} />,
+        },
+        {
+          label: "Gestionar Usuarios",
+          path: "usuarios",
+          icon: <UserCircle size={20} />,
+        },
+        {
+          label: "Gestionar Médicos",
+          path: "medicos",
+          icon: <Stethoscope size={20} />,
+        },
+        {
+          label: "Gestionar Patologías",
+          path: "patologias",
+          icon: <HeartPulse size={20} />,
+        },
+        {
+          label: "Ver Bitácora",
+          path: "bitacora",
+          icon: <ClipboardList size={20} />,
+        },
+      ],
     },
     {
       name: "Reportes y Configuración",
       items: [
-        { label: "Reportes Globales", path: "reportes-globales", icon: <PieChart size={20} /> },
-        { label: "Configuración Global", path: "configuracion-global", icon: <Settings size={20} /> },
-      ]
-    }
+        {
+          label: "Reportes Globales",
+          path: "reportes-globales",
+          icon: <PieChart size={20} />,
+        },
+        {
+          label: "Configuración Global",
+          path: "configuracion-global",
+          icon: <Settings size={20} />,
+        },
+      ],
+    },
   ];
 };
 
 const getMenuPackagesByRole = (currentUser) => {
   const rol = currentUser?.rol;
-  
+
   const iconSize = 20;
 
   const baseMenu = [
@@ -54,15 +94,23 @@ const getMenuPackagesByRole = (currentUser) => {
       name: "Dashboard",
       items: [
         { label: "Panel Principal", path: "", icon: <Home size={iconSize} /> },
-      ]
+      ],
     },
     {
       name: "Gestión de Pacientes",
       items: [
-        { label: "Gestionar Pacientes", path: "pacientes", icon: <Users size={iconSize} /> },
-        { label: "Historial Clínico", path: "historial-clinico", icon: <FileText size={iconSize} /> },
-      ]
-    }
+        {
+          label: "Gestionar Pacientes",
+          path: "pacientes",
+          icon: <Users size={iconSize} />,
+        },
+        {
+          label: "Historial Clínico",
+          path: "historial-clinico",
+          icon: <FileText size={iconSize} />,
+        },
+      ],
+    },
   ];
 
   if (rol === "superAdmin") {
@@ -124,6 +172,21 @@ const getMenuPackagesByRole = (currentUser) => {
   } else if (rol === "medico") {
     return [
       ...baseMenu,
+      {
+        name: "Gestión de Citas",
+        items: [
+          {
+            label: "Gestionar Citas",
+            path: "gestionar-citas",
+            icon: <CalendarPlus2 size={iconSize} />,
+          },
+          {
+            label: "Bloque Horario",
+            path: "bloque-horario",
+            icon: <CalendarRange size={iconSize} />,
+          },
+        ],
+      },
       {
         name: "Patologias y Tratamientos",
         items: [

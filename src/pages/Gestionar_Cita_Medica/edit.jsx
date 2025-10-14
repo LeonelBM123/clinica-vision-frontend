@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, AlertCircle, Loader } from "lucide-react";
-import BloqueHorarioForm from "../../components/Form/BloqueHorarioForm.jsx";
+import CitaForm from "../../components/Form/CitaForm.jsx";
 import { api } from "../../services/apiClient.js";
 
-export default function EditarBloqueHorario() {
+export default function EditarCitaMedica() {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState(null);
-  const [medicos, setMedicos] = useState([]);
-  const [tiposAtencion, setTiposAtencion] = useState([]);
+  const [pacientesOptions, setPacientesOptions] = useState([]);
+  const [bloquesHorariosOptions, setBloquesHorariosOptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -19,16 +19,18 @@ export default function EditarBloqueHorario() {
     setLoading(true);
     setError("");
 
-    // Cargar bloque horario, médicos y tipos de atención en paralelo
+    // Cargar cita, pacientes y bloques horarios en paralelo
     Promise.all([
-      api.get(`/doctores/bloques-horarios/${id}/`),
-      api.get("/doctores/medicos/"),
-      api.get("/doctores/tipos-atencion/"),
+      api.get(`/citas/citas-medicas/${id}/`),
+      api.get("/diagnosticos/pacientes/"), // Ajusta la URL según tu API
+      api.get("/doctores/bloques-horario/"), // Ajusta la URL según tu API
     ])
-      .then(([bloqueData, medicosData, tiposData]) => {
-        setFormData(bloqueData);
-        setMedicos(Array.isArray(medicosData) ? medicosData : []);
-        setTiposAtencion(Array.isArray(tiposData) ? tiposData : []);
+      .then(([citaData, pacientesData, bloquesData]) => {
+        setFormData(citaData);
+        setPacientesOptions(Array.isArray(pacientesData) ? pacientesData : []);
+        setBloquesHorariosOptions(
+          Array.isArray(bloquesData) ? bloquesData : []
+        );
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
@@ -38,10 +40,10 @@ export default function EditarBloqueHorario() {
     setSaving(true);
     setError("");
     api
-      .patch(`/doctores/bloques-horarios/${id}/`, data)
+      .patch(`/citas/citas-medicas/${id}/`, data)
       .then(() => {
         // Recarga automática y navegación
-        navigate("/dashboard/bloques-horarios");
+        navigate("/dashboard/gestionar-citas");
         window.location.reload();
       })
       .catch((e) => setError(e.message))
@@ -56,7 +58,7 @@ export default function EditarBloqueHorario() {
             <div className="text-center">
               <Loader className="animate-spin h-12 w-12 text-blue-600 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Cargando bloque horario...
+                Cargando cita médica...
               </h3>
               <p className="text-gray-600">Por favor espere un momento</p>
             </div>
@@ -82,11 +84,11 @@ export default function EditarBloqueHorario() {
             <div className="h-6 w-px bg-gray-300"></div>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
-                Editar Bloque Horario
+                Editar Cita Médica
               </h1>
               <p className="text-gray-600 mt-1">
-                Modificando bloque <span className="font-medium">#{id}</span>
-                {formData?.medico_nombre && ` - ${formData.medico_nombre}`}
+                Modificando cita <span className="font-medium">#{id}</span>
+                {formData?.paciente_nombre && ` - ${formData.paciente_nombre}`}
               </p>
             </div>
           </div>
@@ -98,25 +100,9 @@ export default function EditarBloqueHorario() {
             <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
             <div>
               <h3 className="text-red-800 font-semibold">
-                Error al editar bloque horario
+                Error al editar cita médica
               </h3>
               <p className="text-red-600 text-sm">{error}</p>
-            </div>
-          </div>
-        )}
-
-        {/* Advertencia si no es modificable */}
-        {formData && !formData.puede_modificar && (
-          <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-xl flex items-center gap-3">
-            <AlertCircle className="text-orange-600 flex-shrink-0" size={20} />
-            <div>
-              <h3 className="text-orange-800 font-semibold">
-                Bloque no modificable
-              </h3>
-              <p className="text-orange-600 text-sm">
-                {formData.motivo_no_modificable ||
-                  "No se puede modificar por reglas del sistema"}
-              </p>
             </div>
           </div>
         )}
@@ -125,23 +111,22 @@ export default function EditarBloqueHorario() {
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
           <div className="px-6 py-4 bg-gradient-to-r from-amber-50 to-white border-b border-gray-200">
             <h2 className="text-xl font-bold text-gray-900">
-              Modificar Horario
+              Modificar Información de la Cita
             </h2>
             <p className="text-gray-600 text-sm mt-1">
-              Actualice los datos del bloque horario
+              Actualice los datos de la cita médica
             </p>
           </div>
 
           <div className="p-6">
-            <BloqueHorarioForm
-              initialBloque={formData}
-              medicosOptions={medicos}
-              tiposAtencionOptions={tiposAtencion}
+            <CitaForm
+              initialCita={formData}
+              pacientesOptions={pacientesOptions}
+              bloquesHorariosOptions={bloquesHorariosOptions}
               onSubmit={handleSubmit}
-              onCancel={() => navigate("/dashboard/bloques-horarios")}
+              onCancel={() => navigate("/dashboard/gestionar-citas")}
               loading={saving}
               isEditMode={true}
-              puedeModificar={formData?.puede_modificar}
             />
           </div>
         </div>
