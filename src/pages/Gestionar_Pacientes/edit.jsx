@@ -3,7 +3,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, AlertCircle, Loader } from "lucide-react";
 import PacienteForm from "../../components/Form/PacienteForm";
 import { api } from "../../services/apiClient";
-//import { API_BASE_URL } from "../../config/api";
 
 export default function EditarPaciente() {
   const { id } = useParams();

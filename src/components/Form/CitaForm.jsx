@@ -1,409 +1,13 @@
 import { useEffect, useState } from "react";
-import { Calendar, Clock, User, Stethoscope } from "lucide-react";
+import Select from "react-select";
+import AsyncSelect from "react-select/async";
+import { api } from "../../services/apiClient";
+import dayjs from "dayjs";
 
-export default function CitaForm({
-  initialCita = null,
-  pacientesOptions = [],
-  bloquesHorariosOptions = [],
-  onSubmit,
-  onCancel,
-  loading = false,
-}) {
-  const editMode = !!initialCita;
-  const [form, setForm] = useState({
-    paciente: "",
-    bloque_horario: "",
-    fecha: "",
-    hora_inicio: "",
-    hora_fin: "",
-    notas: "",
-  });
-  const [touched, setTouched] = useState({});
-  const [searchPaciente, setSearchPaciente] = useState("");
-  const [bloquesFiltrados, setBloquesFiltrados] = useState([]);
+// Solución: Importamos tu servicio de autenticación directamente
+import authService from "../../services/auth";
 
-  // Filtrar pacientes según búsqueda
-  const filteredPacientes = pacientesOptions.filter((paciente) =>
-    paciente.nombre.toLowerCase().includes(searchPaciente.toLowerCase())
-  );
-
-  // Cuando se selecciona un bloque horario, auto-completar fecha y horas
-  useEffect(() => {
-    if (form.bloque_horario) {
-      const bloqueSeleccionado = bloquesHorariosOptions.find(
-        (bloque) => bloque.id === parseInt(form.bloque_horario)
-      );
-
-      if (bloqueSeleccionado) {
-        setForm((f) => ({
-          ...f,
-          // En un sistema real, aquí calcularías la fecha basada en el día de la semana
-          // Por ahora lo dejamos para entrada manual
-          hora_inicio: bloqueSeleccionado.hora_inicio,
-          hora_fin: bloqueSeleccionado.hora_fin,
-        }));
-      }
-    }
-  }, [form.bloque_horario, bloquesHorariosOptions]);
-
-  // Cargar datos iniciales si estamos editando
-  useEffect(() => {
-    if (initialCita) {
-      setForm({
-        paciente: initialCita.paciente?.id || initialCita.paciente || "",
-        bloque_horario:
-          initialCita.bloque_horario?.id || initialCita.bloque_horario || "",
-        fecha: initialCita.fecha || "",
-        hora_inicio: initialCita.hora_inicio || "",
-        hora_fin: initialCita.hora_fin || "",
-        notas: initialCita.notas || "",
-      });
-    }
-  }, [initialCita]);
-
-  function setField(name, value) {
-    setForm((f) => ({ ...f, [name]: value }));
-  }
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    setTouched({
-      paciente: true,
-      bloque_horario: true,
-      fecha: true,
-      hora_inicio: true,
-      hora_fin: true,
-    });
-
-    // Validaciones básicas
-    if (
-      !form.paciente ||
-      !form.bloque_horario ||
-      !form.fecha ||
-      !form.hora_inicio ||
-      !form.hora_fin
-    ) {
-      return;
-    }
-
-    const payload = {
-      paciente: parseInt(form.paciente),
-      bloque_horario: parseInt(form.bloque_horario),
-      fecha: form.fecha,
-      hora_inicio: form.hora_inicio,
-      hora_fin: form.hora_fin,
-      notas: form.notas.trim(),
-    };
-
-    onSubmit(payload);
-  }
-
-  const invalid = {
-    paciente: touched.paciente && !form.paciente,
-    bloque_horario: touched.bloque_horario && !form.bloque_horario,
-    fecha: touched.fecha && !form.fecha,
-    hora_inicio: touched.hora_inicio && !form.hora_inicio,
-    hora_fin: touched.hora_fin && !form.hora_fin,
-  };
-
-  // Formatear bloques horarios para mostrar información útil
-  const bloquesFormateados = bloquesHorariosOptions.map((bloque) => ({
-    value: bloque.id,
-    label: `${bloque.dia_semana} - ${bloque.hora_inicio} a ${bloque.hora_fin}`,
-    tipo_atencion: bloque.tipo_atencion_nombre,
-    medico: bloque.medico_nombre,
-  }));
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Paciente */}
-        <Field
-          label="Paciente *"
-          error={invalid.paciente && "Seleccione un paciente"}
-        >
-          <div className="space-y-2">
-            <div className="border border-gray-300 rounded-lg overflow-hidden">
-              <div className="border-b border-gray-300 bg-gray-50">
-                <div className="flex items-center px-4 py-2">
-                  <User size={16} className="text-gray-400 mr-2" />
-                  <input
-                    type="text"
-                    value={searchPaciente}
-                    onChange={(e) => setSearchPaciente(e.target.value)}
-                    placeholder="Buscar paciente..."
-                    disabled={loading}
-                    className="w-full bg-transparent focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="max-h-48 overflow-y-auto">
-                {filteredPacientes.length > 0 ? (
-                  filteredPacientes.map((paciente) => (
-                    <label
-                      key={paciente.id}
-                      className={`flex items-center space-x-3 p-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer ${
-                        form.paciente === paciente.id.toString()
-                          ? "bg-blue-50"
-                          : ""
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="paciente"
-                        value={paciente.id}
-                        checked={form.paciente === paciente.id.toString()}
-                        onChange={(e) => setField("paciente", e.target.value)}
-                        disabled={loading}
-                        className="rounded-full border-gray-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <div>
-                        <div className="font-medium text-gray-900">
-                          {paciente.nombre}
-                        </div>
-                        {paciente.telefono && (
-                          <div className="text-sm text-gray-500">
-                            Tel: {paciente.telefono}
-                          </div>
-                        )}
-                      </div>
-                    </label>
-                  ))
-                ) : (
-                  <div className="p-4 text-center text-gray-500">
-                    No se encontraron pacientes
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Paciente seleccionado */}
-            {form.paciente && (
-              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <User size={16} className="text-green-600" />
-                    <span className="font-medium text-green-800">
-                      {
-                        pacientesOptions.find(
-                          (p) => p.id === parseInt(form.paciente)
-                        )?.nombre
-                      }
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setField("paciente", "")}
-                    disabled={loading}
-                    className="text-green-600 hover:text-green-800 text-sm"
-                  >
-                    Cambiar
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </Field>
-
-        {/* Bloque Horario */}
-        <Field
-          label="Bloque Horario *"
-          error={invalid.bloque_horario && "Seleccione un bloque horario"}
-        >
-          <select
-            value={form.bloque_horario}
-            onChange={(e) => setField("bloque_horario", e.target.value)}
-            onBlur={() => setTouched((t) => ({ ...t, bloque_horario: true }))}
-            required
-            disabled={loading}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition ${
-              invalid.bloque_horario ? "border-red-500" : "border-gray-300"
-            }`}
-          >
-            <option value="">Seleccione un bloque horario</option>
-            {bloquesFormateados.map((bloque) => (
-              <option key={bloque.value} value={bloque.value}>
-                {bloque.label} - {bloque.tipo_atencion} ({bloque.medico})
-              </option>
-            ))}
-          </select>
-        </Field>
-
-        {/* Fecha */}
-        <Field
-          label="Fecha de la Cita *"
-          error={invalid.fecha && "Seleccione una fecha"}
-        >
-          <div className="relative">
-            <Calendar
-              size={20}
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-            />
-            <input
-              type="date"
-              value={form.fecha}
-              onChange={(e) => setField("fecha", e.target.value)}
-              onBlur={() => setTouched((t) => ({ ...t, fecha: true }))}
-              required
-              disabled={loading}
-              className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition ${
-                invalid.fecha ? "border-red-500" : "border-gray-300"
-              }`}
-            />
-          </div>
-        </Field>
-
-        {/* Hora Inicio */}
-        <Field
-          label="Hora de Inicio *"
-          error={invalid.hora_inicio && "Ingrese la hora de inicio"}
-        >
-          <div className="relative">
-            <Clock
-              size={20}
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-            />
-            <input
-              type="time"
-              value={form.hora_inicio}
-              onChange={(e) => setField("hora_inicio", e.target.value)}
-              onBlur={() => setTouched((t) => ({ ...t, hora_inicio: true }))}
-              required
-              disabled={loading}
-              className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition ${
-                invalid.hora_inicio ? "border-red-500" : "border-gray-300"
-              }`}
-            />
-          </div>
-        </Field>
-
-        {/* Hora Fin */}
-        <Field
-          label="Hora de Fin *"
-          error={invalid.hora_fin && "Ingrese la hora de fin"}
-        >
-          <div className="relative">
-            <Clock
-              size={20}
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-            />
-            <input
-              type="time"
-              value={form.hora_fin}
-              onChange={(e) => setField("hora_fin", e.target.value)}
-              onBlur={() => setTouched((t) => ({ ...t, hora_fin: true }))}
-              required
-              disabled={loading}
-              className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition ${
-                invalid.hora_fin ? "border-red-500" : "border-gray-300"
-              }`}
-            />
-          </div>
-        </Field>
-      </div>
-
-      {/* Notas */}
-      <Field label="Notas Adicionales">
-        <textarea
-          value={form.notas}
-          onChange={(e) => setField("notas", e.target.value)}
-          disabled={loading}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-none"
-          placeholder="Notas adicionales sobre la cita..."
-          rows={3}
-          maxLength={500}
-        />
-        <div className="text-xs text-gray-500 text-right mt-1">
-          {form.notas.length}/500 caracteres
-        </div>
-      </Field>
-
-      {/* Información de la Cita */}
-      {form.paciente && form.bloque_horario && form.fecha && (
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <h3 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
-            <Stethoscope size={18} />
-            Resumen de la Cita
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="font-medium text-blue-800">Paciente:</span>
-              <p className="text-blue-700">
-                {
-                  pacientesOptions.find((p) => p.id === parseInt(form.paciente))
-                    ?.nombre
-                }
-              </p>
-            </div>
-            <div>
-              <span className="font-medium text-blue-800">Fecha y Hora:</span>
-              <p className="text-blue-700">
-                {form.fecha} • {form.hora_inicio} - {form.hora_fin}
-              </p>
-            </div>
-            <div>
-              <span className="font-medium text-blue-800">Bloque Horario:</span>
-              <p className="text-blue-700">
-                {
-                  bloquesFormateados.find(
-                    (b) => b.value === parseInt(form.bloque_horario)
-                  )?.label
-                }
-              </p>
-            </div>
-            <div>
-              <span className="font-medium text-blue-800">Médico:</span>
-              <p className="text-blue-700">
-                {
-                  bloquesFormateados.find(
-                    (b) => b.value === parseInt(form.bloque_horario)
-                  )?.medico
-                }
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Botones */}
-      <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200">
-        <button
-          type="button"
-          onClick={onCancel}
-          disabled={loading}
-          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium"
-        >
-          Cancelar
-        </button>
-        <button
-          type="submit"
-          disabled={
-            loading ||
-            !form.paciente ||
-            !form.bloque_horario ||
-            !form.fecha ||
-            !form.hora_inicio ||
-            !form.hora_fin
-          }
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-        >
-          {loading ? (
-            <>
-              <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-white"></div>
-              {editMode ? "Actualizando..." : "Creando..."}
-            </>
-          ) : editMode ? (
-            "Actualizar Cita"
-          ) : (
-            "Crear Cita"
-          )}
-        </button>
-      </div>
-    </form>
-  );
-}
-
+// Componente helper para los campos del formulario (sin cambios)
 function Field({ label, error, children }) {
   return (
     <div className="space-y-2">
@@ -411,12 +15,285 @@ function Field({ label, error, children }) {
         {label}
       </label>
       {children}
-      {error && (
-        <p className="text-sm text-red-600 flex items-center gap-1">
-          <span className="w-1 h-1 bg-red-600 rounded-full"></span>
-          {error}
-        </p>
-      )}
+      {error && <p className="text-sm text-red-600">{error}</p>}
     </div>
+  );
+}
+
+export default function CitaForm({
+  initialCita = null,
+  onSubmit,
+  onCancel,
+  loading = false,
+}) {
+  const isEditMode = !!initialCita;
+
+  // Solución: Obtenemos el usuario y su rol directamente de tu servicio
+  const user = authService.getCurrentUser();
+  const isUserMedico = authService.isMedico();
+
+  // Estados del formulario
+  const [pacientesOptions, setPacientesOptions] = useState([]);
+  const [loadingPacientes, setLoadingPacientes] = useState(false);
+  const [selectedMedico, setSelectedMedico] = useState(null);
+  const [fecha, setFecha] = useState(
+    initialCita?.fecha || dayjs().format("YYYY-MM-DD")
+  );
+  const [horarios, setHorarios] = useState([]);
+  const [loadingHorarios, setLoadingHorarios] = useState(false);
+
+  const [form, setForm] = useState({
+    paciente: null,
+    bloque_horario: initialCita?.bloque_horario || null,
+    hora_inicio: initialCita?.hora_inicio || "",
+    notas: initialCita?.notas || "",
+    estado_cita: initialCita?.estado_cita || "PENDIENTE",
+  });
+
+  const [touched, setTouched] = useState({});
+
+  // Cargar todos los pacientes al montar el componente
+  useEffect(() => {
+    setLoadingPacientes(true);
+    api
+      .get("/diagnosticos/pacientes/?busqueda_global=true")
+      .then((data) => {
+        const options = data.map((paciente) => ({
+          label: `${paciente.nombre} (${paciente.numero_historia_clinica})`,
+          value: paciente.id,
+        }));
+        setPacientesOptions(options);
+
+        // Si estamos en modo edición, pre-seleccionamos el paciente
+        if (isEditMode && initialCita) {
+          const pacienteSeleccionado = options.find(
+            (opt) => opt.value === initialCita.paciente
+          );
+          setForm((f) => ({ ...f, paciente: pacienteSeleccionado }));
+        }
+      })
+      .catch((e) => console.error("Error cargando pacientes:", e))
+      .finally(() => setLoadingPacientes(false));
+  }, [isEditMode, initialCita]);
+
+  // Si el usuario es médico, se autoselecciona
+  useEffect(() => {
+    if (isUserMedico) {
+      // Tu API de login devuelve el usuario_id y correo. Necesitamos buscar los datos completos del médico.
+      api
+        .get(`/cuentas/usuarios/${user.usuario_id}/`)
+        .then((medicoData) => {
+          setSelectedMedico({ label: medicoData.nombre, value: medicoData.id });
+        })
+        .catch((e) =>
+          console.error("Error cargando datos del médico logueado", e)
+        );
+    }
+  }, [isUserMedico, user]);
+
+  // Cargar médicos de forma asíncrona (solo para recepcionistas)
+  const loadMedicos = async (inputValue) => {
+    const params = { search: inputValue };
+    const data = await api.get("/doctores/medicos/", { params });
+    return data.map((medico) => ({ label: medico.nombre, value: medico.id }));
+  };
+
+  // Cargar horarios disponibles cuando cambia el médico o la fecha
+  useEffect(() => {
+    if (selectedMedico?.value && fecha) {
+      setLoadingHorarios(true);
+      setHorarios([]);
+      setForm((f) => ({ ...f, hora_inicio: "", bloque_horario: null }));
+
+      api
+        .get(
+          `/doctores/medicos/${selectedMedico.value}/horarios-disponibles/?fecha=${fecha}`
+        )
+        .then((data) => setHorarios(Array.isArray(data) ? data : []))
+        .catch((e) => console.error("Error al cargar horarios:", e))
+        .finally(() => setLoadingHorarios(false));
+    } else {
+      setHorarios([]);
+    }
+  }, [selectedMedico, fecha]);
+
+  // Manejar cambios en campos de texto
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleHorarioSelect = (horario) => {
+    setForm((prev) => ({
+      ...prev,
+      hora_inicio: horario.hora_inicio,
+      bloque_horario: horario.bloque_horario_id,
+    }));
+  };
+
+  // Enviar formulario
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setTouched({
+      paciente: true,
+      medico: true,
+      fecha: true,
+      hora_inicio: true,
+    });
+
+    if (!form.paciente || !selectedMedico || !fecha || !form.hora_inicio) {
+      return;
+    }
+
+    const payload = {
+      paciente: form.paciente.value,
+      bloque_horario: form.bloque_horario,
+      fecha: fecha,
+      hora_inicio: form.hora_inicio,
+      notas: form.notas,
+      estado_cita: form.estado_cita,
+    };
+
+    onSubmit(payload);
+  };
+
+  const invalid = {
+    paciente: touched.paciente && !form.paciente,
+    medico: touched.medico && !selectedMedico,
+    hora_inicio: touched.hora_inicio && !form.hora_inicio,
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Selector de Paciente con lista completa */}
+        <Field
+          label="Paciente *"
+          error={invalid.paciente && "Seleccione un paciente"}
+        >
+          <Select
+            options={pacientesOptions}
+            value={form.paciente}
+            onChange={(option) => setForm((f) => ({ ...f, paciente: option }))}
+            onBlur={() => setTouched((t) => ({ ...t, paciente: true }))}
+            placeholder="Seleccione o busque un paciente..."
+            isLoading={loadingPacientes}
+            isDisabled={loading || isEditMode}
+            isSearchable
+            classNamePrefix="react-select"
+          />
+        </Field>
+
+        {/* Selector de Médico condicional */}
+        <Field
+          label="Médico *"
+          error={invalid.medico && "Seleccione un médico"}
+        >
+          {isUserMedico ? (
+            <input
+              type="text"
+              value={selectedMedico?.label || "Cargando..."}
+              disabled
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100"
+            />
+          ) : (
+            <AsyncSelect
+              cacheOptions
+              defaultOptions
+              loadOptions={loadMedicos}
+              value={selectedMedico}
+              onChange={setSelectedMedico}
+              onBlur={() => setTouched((t) => ({ ...t, medico: true }))}
+              placeholder="Buscar médico..."
+              isDisabled={loading || isEditMode}
+              classNamePrefix="react-select"
+            />
+          )}
+        </Field>
+      </div>
+
+      {/* Selector de Fecha */}
+      <Field label="Fecha de la Cita *">
+        <input
+          type="date"
+          value={fecha}
+          onChange={(e) => setFecha(e.target.value)}
+          disabled={loading || isEditMode || !selectedMedico}
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+        />
+      </Field>
+
+      {/* Selección de Horario */}
+      {selectedMedico && fecha && (
+        <Field
+          label="Horario Disponible *"
+          error={invalid.hora_inicio && "Seleccione un horario"}
+        >
+          {loadingHorarios ? (
+            <div className="text-center p-4 text-sm text-gray-500">
+              Cargando horarios...
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+              {horarios.length > 0 ? (
+                horarios.map((h, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => handleHorarioSelect(h)}
+                    disabled={loading || isEditMode}
+                    className={`px-3 py-2 border rounded-lg text-sm font-medium transition ${
+                      form.hora_inicio === h.hora_inicio
+                        ? "bg-blue-600 text-white border-blue-600 shadow"
+                        : "bg-white hover:bg-gray-50 border-gray-300"
+                    } ${isEditMode ? "cursor-not-allowed" : ""}`}
+                  >
+                    {h.hora_inicio}
+                  </button>
+                ))
+              ) : (
+                <div className="col-span-full text-center p-4 bg-gray-50 rounded-lg text-sm text-gray-600">
+                  No hay horarios disponibles para el médico en esta fecha.
+                </div>
+              )}
+            </div>
+          )}
+        </Field>
+      )}
+
+      {/* Notas adicionales */}
+      <Field label="Notas Adicionales">
+        <textarea
+          name="notas"
+          value={form.notas}
+          onChange={handleChange}
+          rows={3}
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+          placeholder="Motivo de la consulta, recordatorios, etc."
+        />
+      </Field>
+
+      {/* Botones */}
+      <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="px-6 py-3 border rounded-lg"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          disabled={loading || !form.paciente || !form.hora_inicio}
+          className="px-6 py-3 bg-blue-600 text-white rounded-lg disabled:opacity-50"
+        >
+          {loading
+            ? "Guardando..."
+            : isEditMode
+            ? "Guardar Cambios"
+            : "Agendar Cita"}
+        </button>
+      </div>
+    </form>
   );
 }

@@ -1,50 +1,32 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, AlertCircle } from "lucide-react";
 import CitaForm from "../../components/Form/CitaForm.jsx";
 import { api } from "../../services/apiClient.js";
 
 export default function CrearCitaMedica() {
-  const [loading, setLoading] = useState(false);
-  const [pacientesOptions, setPacientesOptions] = useState([]);
-  const [bloquesHorariosOptions, setBloquesHorariosOptions] = useState([]);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const cargarOpciones = async () => {
-      try {
-        const [pacientesData, bloquesData] = await Promise.all([
-          api.get("/diagnosticos/pacientes/"),
-          api.get("/doctores/bloques-horario/"),
-        ]);
-
-        setPacientesOptions(Array.isArray(pacientesData) ? pacientesData : []);
-        setBloquesHorariosOptions(
-          Array.isArray(bloquesData) ? bloquesData : []
-        );
-      } catch (e) {
-        console.error("Error cargando opciones:", e);
-        setError("Error al cargar los datos necesarios");
-      }
-    };
-
-    cargarOpciones();
-  }, []);
-
-  function handleSubmit(data) {
-    setLoading(true);
+  const handleSubmit = (data) => {
+    setSaving(true);
     setError("");
     api
-      .post("/citas/citas-medicas/", data)
+      .post("/citas_pagos/citas-medicas/", data)
       .then(() => {
-        // Recarga automática y navegación
-        navigate("/dashboard/gestionar-citas");
-        window.location.reload();
+        // Podrías pasar un estado en la navegación para mostrar una notificación
+        navigate("/dashboard/citas-medicas");
+        window.location.reload();  // Para asegurar que la tabla se actualice
       })
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false));
-  }
+      .catch((e) =>
+        setError(
+          e.message ||
+            "Error al agendar la cita. Verifique que todos los campos sean correctos y el horario siga disponible."
+        )
+      )
+      .finally(() => setSaving(false));
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-6">
@@ -62,54 +44,44 @@ export default function CrearCitaMedica() {
             <div className="h-6 w-px bg-gray-300"></div>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
-                Nueva Cita Médica
+                Agendar Nueva Cita
               </h1>
               <p className="text-gray-600 mt-1">
-                Agenda una nueva cita médica en el sistema
+                Seleccione el paciente, médico y horario disponible.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Error */}
+        {/* Mensaje de Error */}
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3">
             <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
             <div>
-              <h3 className="text-red-800 font-semibold">
-                Error al crear cita médica
-              </h3>
+              <h3 className="text-red-800 font-semibold">Error al Agendar</h3>
               <p className="text-red-600 text-sm">{error}</p>
             </div>
           </div>
         )}
 
-        {/* Formulario */}
+        {/* Contenedor del Formulario */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
           <div className="px-6 py-4 bg-gradient-to-r from-blue-50 to-white border-b border-gray-200">
             <h2 className="text-xl font-bold text-gray-900">
-              Información de la Cita
+              Detalles de la Cita
             </h2>
             <p className="text-gray-600 text-sm mt-1">
-              Complete los datos requeridos para la cita médica
+              Complete los datos requeridos para la nueva cita.
             </p>
           </div>
 
           <div className="p-6">
             <CitaForm
-              initialCita={null}
-              pacientesOptions={pacientesOptions}
-              bloquesHorariosOptions={bloquesHorariosOptions}
               onSubmit={handleSubmit}
-              onCancel={() => navigate("/dashboard/gestionar-citas")}
-              loading={loading}
+              onCancel={() => navigate("/dashboard/citas-medicas")}
+              loading={saving}
             />
           </div>
-        </div>
-
-        {/* Footer informativo */}
-        <div className="mt-8 text-center text-gray-500 text-sm">
-          <p>Los campos marcados con * son obligatorios</p>
         </div>
       </div>
     </div>

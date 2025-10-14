@@ -7,48 +7,37 @@ import { api } from "../../services/apiClient.js";
 export default function EditarCitaMedica() {
   const { id } = useParams();
   const navigate = useNavigate();
-
-  const [formData, setFormData] = useState(null);
-  const [pacientesOptions, setPacientesOptions] = useState([]);
-  const [bloquesHorariosOptions, setBloquesHorariosOptions] = useState([]);
+  const [initialData, setInitialData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     setLoading(true);
-    setError("");
-
-    // Cargar cita, pacientes y bloques horarios en paralelo
-    Promise.all([
-      api.get(`/citas/citas-medicas/${id}/`),
-      api.get("/diagnosticos/pacientes/"), // Ajusta la URL según tu API
-      api.get("/doctores/bloques-horario/"), // Ajusta la URL según tu API
-    ])
-      .then(([citaData, pacientesData, bloquesData]) => {
-        setFormData(citaData);
-        setPacientesOptions(Array.isArray(pacientesData) ? pacientesData : []);
-        setBloquesHorariosOptions(
-          Array.isArray(bloquesData) ? bloquesData : []
-        );
+    api
+      .get(`/citas_pagos/citas-medicas/${id}/`)
+      .then((data) => {
+        setInitialData(data);
       })
-      .catch((e) => setError(e.message))
+      .catch((e) => {
+        setError(e.message || "Error al cargar los datos de la cita");
+      })
       .finally(() => setLoading(false));
   }, [id]);
 
-  function handleSubmit(data) {
+  const handleSubmit = (data) => {
     setSaving(true);
     setError("");
+    // Para editar, es común usar PATCH en lugar de PUT si no se envían todos los campos
     api
-      .patch(`/citas/citas-medicas/${id}/`, data)
+      .patch(`/citas_pagos/citas-medicas/${id}/`, data)
       .then(() => {
-        // Recarga automática y navegación
-        navigate("/dashboard/gestionar-citas");
+        navigate("/dashboard/citas-medicas");
         window.location.reload();
       })
-      .catch((e) => setError(e.message))
+      .catch((e) => setError(e.message || "Error al actualizar la cita"))
       .finally(() => setSaving(false));
-  }
+  };
 
   if (loading) {
     return (
@@ -58,9 +47,9 @@ export default function EditarCitaMedica() {
             <div className="text-center">
               <Loader className="animate-spin h-12 w-12 text-blue-600 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Cargando cita médica...
+                Cargando Cita...
               </h3>
-              <p className="text-gray-600">Por favor espere un momento</p>
+              <p className="text-gray-600">Por favor espere un momento.</p>
             </div>
           </div>
         </div>
@@ -88,54 +77,39 @@ export default function EditarCitaMedica() {
               </h1>
               <p className="text-gray-600 mt-1">
                 Modificando cita <span className="font-medium">#{id}</span>
-                {formData?.paciente_nombre && ` - ${formData.paciente_nombre}`}
+                {initialData?.paciente_nombre &&
+                  ` - ${initialData.paciente_nombre}`}
               </p>
             </div>
           </div>
         </div>
 
-        {/* Error */}
+        {/* Mensaje de Error */}
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3">
             <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
             <div>
               <h3 className="text-red-800 font-semibold">
-                Error al editar cita médica
+                Error al cargar o guardar
               </h3>
               <p className="text-red-600 text-sm">{error}</p>
             </div>
           </div>
         )}
 
-        {/* Formulario */}
+        {/* Contenedor del Formulario */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-          <div className="px-6 py-4 bg-gradient-to-r from-amber-50 to-white border-b border-gray-200">
-            <h2 className="text-xl font-bold text-gray-900">
-              Modificar Información de la Cita
-            </h2>
-            <p className="text-gray-600 text-sm mt-1">
-              Actualice los datos de la cita médica
-            </p>
-          </div>
-
           <div className="p-6">
-            <CitaForm
-              initialCita={formData}
-              pacientesOptions={pacientesOptions}
-              bloquesHorariosOptions={bloquesHorariosOptions}
-              onSubmit={handleSubmit}
-              onCancel={() => navigate("/dashboard/gestionar-citas")}
-              loading={saving}
-              isEditMode={true}
-            />
+            {initialData && (
+              <CitaForm
+                initialCita={initialData}
+                onSubmit={handleSubmit}
+                onCancel={() => navigate("/dashboard/citas-medicas")}
+                loading={saving}
+                isEditMode={true}
+              />
+            )}
           </div>
-        </div>
-
-        {/* Footer informativo */}
-        <div className="mt-8 text-center text-gray-500 text-sm">
-          <p>
-            Los cambios se guardarán automáticamente al enviar el formulario
-          </p>
         </div>
       </div>
     </div>

@@ -177,12 +177,12 @@ const getMenuPackagesByRole = (currentUser) => {
         items: [
           {
             label: "Gestionar Citas",
-            path: "gestionar-citas",
+            path: "citas-medicas",
             icon: <CalendarPlus2 size={iconSize} />,
           },
           {
             label: "Bloque Horario",
-            path: "bloque-horario",
+            path: "bloques-horarios",
             icon: <CalendarRange size={iconSize} />,
           },
         ],

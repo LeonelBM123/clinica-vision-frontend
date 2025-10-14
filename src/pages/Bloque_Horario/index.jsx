@@ -1,303 +1,162 @@
-import React, { useState, useEffect } from "react";
-import { CheckCircle, AlertCircle, Calendar } from "lucide-react";
-import UniversalTable from "../../components/UniversalTable";
-import ConfirmModal from "../../components/ConfirmModal";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useMemo } from "react";
+import { useNavigate, Outlet, useLocation } from "react-router-dom";
+import dayjs from "dayjs";
+import "dayjs/locale/es";
+import { PlusCircle } from "lucide-react";
 import { api } from "../../services/apiClient";
-import { Outlet, useLocation } from "react-router-dom";
+import ConfirmModal from "../../components/ConfirmModal";
+import AgendaSemanal from "../../components/AgendaSemanal";
+dayjs.locale("es");
 
-const BloqueHorario = () => {
+const DIAS_SEMANA = [
+  "LUNES",
+  "MARTES",
+  "MIERCOLES",
+  "JUEVES",
+  "VIERNES",
+  "SABADO",
+  "DOMINGO",
+];
+
+const GestionarBloqueHorario = () => {
   const [bloques, setBloques] = useState([]);
-  const [medicos, setMedicos] = useState([]);
-  const [tiposAtencion, setTiposAtencion] = useState([]);
+  const [citas, setCitas] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [notification, setNotification] = useState(null);
   const [error, setError] = useState("");
   const [deleteModal, setDeleteModal] = useState({
     isOpen: false,
     bloque: null,
   });
-  const [deleting, setDeleting] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Definir columnas de la tabla
-  const columns = [
-    {
-      header: "Médico",
-      accessor: "medico_nombre",
-      render: (item) => (
-        <span className="font-medium text-gray-900">{item.medico_nombre}</span>
-      ),
-    },
-    {
-      header: "Día",
-      accessor: "dia_semana",
-      render: (item) => (
-        <span className="text-gray-700 capitalize">
-          {item.dia_semana.toLowerCase()}
-        </span>
-      ),
-    },
-    {
-      header: "Horario",
-      accessor: "horario",
-      render: (item) => (
-        <span className="font-mono text-gray-900">
-          {item.hora_inicio} - {item.hora_fin}
-        </span>
-      ),
-    },
-    {
-      header: "Duración Cita",
-      accessor: "duracion_cita_minutos",
-      render: (item) => (
-        <span className="text-gray-700">{item.duracion_cita_minutos} min</span>
-      ),
-    },
-    {
-      header: "Máx. Citas",
-      accessor: "max_citas_por_bloque",
-      render: (item) => (
-        <span className="text-gray-700">{item.max_citas_por_bloque}</span>
-      ),
-    },
-    {
-      header: "Tipo Atención",
-      accessor: "tipo_atencion_nombre",
-      render: (item) => (
-        <span className="text-gray-700">
-          {item.tipo_atencion_nombre || "No especificado"}
-        </span>
-      ),
-    },
-    {
-      header: "Estado",
-      accessor: "estado",
-      render: (item) => (
-        <span
-          className={`px-2 py-1 text-xs font-bold rounded-full ${
-            item.estado
-              ? "bg-green-100 text-green-800"
-              : "bg-red-100 text-red-800"
-          }`}
-        >
-          {item.estado ? "Activo" : "Inactivo"}
-        </span>
-      ),
-    },
-    {
-      header: "Modificable",
-      accessor: "puede_modificar",
-      render: (item) => (
-        <span
-          className={`px-2 py-1 text-xs font-bold rounded-full ${
-            item.puede_modificar
-              ? "bg-blue-100 text-blue-800"
-              : "bg-orange-100 text-orange-800"
-          }`}
-        >
-          {item.puede_modificar ? "Sí" : "No"}
-        </span>
-      ),
-    },
-  ];
-
-  // Notificación
-  const showNotification = (message, type = "success") => {
-    setNotification({ message, type });
-    setTimeout(() => setNotification(null), 5000);
-  };
-
-  // Cargar bloques horarios (ya filtrados por grupo del backend)
-  const loadBloquesHorarios = async () => {
+  const loadData = async () => {
+    setLoading(true);
+    setError("");
     try {
-      setLoading(true);
-      setError("");
-      const data = await api.get("/doctores/bloques-horario/");
+      const bloquesData = await api.get("/doctores/bloques-horarios/");
+      setBloques(Array.isArray(bloquesData) ? bloquesData : []);
 
-      // Si viene paginado, tomamos data.results, sino data directamente
-      const bloquesData = Array.isArray(data) ? data : data.results || [];
-      setBloques(bloquesData);
-    } catch (error) {
-      setError(error.message || "Error al cargar bloques horarios");
+      const citasData = await api.get("/citas/citas-medicas/");
+      setCitas(Array.isArray(citasData) ? citasData : []);
+    } catch (e) {
+      console.error("Error al cargar datos:", e);
+      setError(e.message || "Error al cargar los datos de la agenda.");
     } finally {
       setLoading(false);
     }
   };
 
-
-  // Cargar médicos del mismo grupo para filtros
-  const loadMedicosDelGrupo = async () => {
-    try {
-      const data = await api.get("/doctores/medicos/");
-      // El backend ya filtra por grupo, pero aseguramos que sean médicos activos
-      const medicosActivos = Array.isArray(data)
-        ? data.filter((medico) => medico.estado)
-        : [];
-      setMedicos(medicosActivos);
-    } catch (error) {
-      console.error("Error cargando médicos del grupo:", error);
-    }
-  };
-
-  // Cargar tipos de atención del mismo grupo
-  const loadTiposAtencionDelGrupo = async () => {
-    try {
-      const data = await api.get("/doctores/tipos-atencion/");
-      setTiposAtencion(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error("Error cargando tipos atención del grupo:", error);
-    }
-  };
-
   useEffect(() => {
-    loadBloquesHorarios();
-    loadMedicosDelGrupo();
-    loadTiposAtencionDelGrupo();
+    loadData();
   }, []);
 
-  // Navegar a crear
-  const handleAdd = () => {
-    navigate("/dashboard/bloque-horario/nuevo");
-  };
-
-  // Navegar a editar
-  const handleEdit = (bloque) => {
-    if (!bloque.puede_modificar) {
-      showNotification(
-        `No se puede modificar este bloque. ${
-          bloque.motivo_no_modificable || "Reglas del sistema"
-        }`,
-        "error"
-      );
-      return;
-    }
-    navigate(`/dashboard/bloque-horario/${bloque.id}/editar`);
-  };
-
-  // Abrir modal de confirmación para eliminar
-  const handleDelete = (bloque) => {
-    if (!bloque.puede_modificar) {
-      showNotification(
-        `No se puede eliminar este bloque. ${
-          bloque.motivo_no_modificable || "Reglas del sistema"
-        }`,
-        "error"
-      );
-      return;
-    }
-    setDeleteModal({
-      isOpen: true,
-      bloque: bloque,
+  const citasPorDia = useMemo(() => {
+    const agrupadas = {};
+    const hoy = dayjs();
+    const inicioSemana = hoy.startOf("week");
+    citas.forEach((cita) => {
+      const fechaCita = dayjs(cita.fecha);
+      if (
+        fechaCita.isAfter(inicioSemana.subtract(1, "day")) &&
+        fechaCita.isBefore(inicioSemana.add(7, "day"))
+      ) {
+        const dayIndex = fechaCita.day();
+        const dia = DIAS_SEMANA[dayIndex === 0 ? 6 : dayIndex - 1];
+        if (dia) {
+          if (!agrupadas[dia]) agrupadas[dia] = [];
+          agrupadas[dia].push(cita);
+        }
+      }
     });
-  };
+    return agrupadas;
+  }, [citas]);
 
-  // Confirmar eliminación
+  const bloquesPorDia = useMemo(() => {
+    const agrupados = {};
+    bloques.forEach((bloque) => {
+      if (!agrupados[bloque.dia_semana]) agrupados[bloque.dia_semana] = [];
+      agrupados[bloque.dia_semana].push(bloque);
+      agrupados[bloque.dia_semana].sort((a, b) =>
+        a.hora_inicio.localeCompare(b.hora_inicio)
+      );
+    });
+    return agrupados;
+  }, [bloques]);
+
+  const handleEdit = (bloque) =>
+    navigate(`/dashboard/bloques-horarios/${bloque.id}/editar`);
+  const handleDelete = (bloque) =>
+    setDeleteModal({ isOpen: true, bloque: bloque });
   const confirmDelete = async () => {
     if (!deleteModal.bloque) return;
-
     try {
-      setDeleting(true);
       await api.delete(`/doctores/bloques-horarios/${deleteModal.bloque.id}/`);
-      showNotification("Bloque horario eliminado correctamente");
-      await loadBloquesHorarios();
       setDeleteModal({ isOpen: false, bloque: null });
-    } catch (error) {
-      setError(error.message || "Error al eliminar bloque horario");
-    } finally {
-      setDeleting(false);
+      loadData();
+    } catch (e) {
+      setError(e.message || "Error al eliminar");
     }
   };
 
-  // Cancelar eliminación
-  const cancelDelete = () => {
-    setDeleteModal({ isOpen: false, bloque: null });
-  };
-
-  // Detecta si está en una ruta hija (crear/editar)
   const isFormRoute =
-    location.pathname.includes("/dashboard/bloque-horario/nuevo") ||
-    location.pathname.match(/\/dashboard\/bloque-horario\/\d+\/editar/);
-
-  // Si está en una ruta hija, muestra el Outlet (formulario)
+    location.pathname.includes("/nuevo") || location.pathname.match(/\/editar/);
   if (isFormRoute) {
     return <Outlet />;
   }
 
-  // Si no, muestra la tabla
   return (
-    <div className="min-h-screen bg-gray-50 py-6">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Notificación */}
-        {notification && (
-          <div
-            className={`fixed top-4 right-4 z-30 p-4 rounded-xl shadow-lg flex items-center gap-2 ${
-              notification.type === "success"
-                ? "bg-green-50 text-green-800 border border-green-200"
-                : "bg-red-50 text-red-800 border border-red-200"
-            }`}
-          >
-            {notification.type === "success" ? (
-              <CheckCircle size={20} />
-            ) : (
-              <AlertCircle size={20} />
-            )}
-            {notification.message}
-          </div>
-        )}
-
-        {/* Error */}
-        {error && (
-          <div className="mb-6 px-4 py-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl">
-            {error}
-          </div>
-        )}
-
-        {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <Calendar className="text-blue-600" size={32} />
-            <h1 className="text-3xl font-bold text-gray-900">
-              Gestión de Bloques Horarios
-            </h1>
-          </div>
-          <p className="text-gray-600">
-            Administra los horarios de atención de los médicos de tu grupo
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Mi Agenda Semanal
+          </h1>
+          <p className="text-gray-600 mt-1">
+            Visualiza y gestiona tu horario recurrente y las citas de esta
+            semana.
           </p>
         </div>
-
-        {/* Tabla Universal */}
-        <UniversalTable
-          title="Bloques Horarios Registrados"
-          data={bloques}
-          columns={columns}
-          onAdd={handleAdd}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          loading={loading}
-          searchPlaceholder="Buscar bloques horarios..."
-          addButtonText="Nuevo Bloque"
-          showAddButton={true}
-          emptyMessage="No hay bloques horarios registrados"
-        />
-
-        {/* Modal de confirmación para eliminar */}
-        <ConfirmModal
-          isOpen={deleteModal.isOpen}
-          onClose={cancelDelete}
-          onConfirm={confirmDelete}
-          title="Eliminar Bloque Horario"
-          message={`¿Estás seguro de que deseas eliminar el bloque horario de ${deleteModal.bloque?.medico_nombre} (${deleteModal.bloque?.dia_semana} ${deleteModal.bloque?.hora_inicio}-${deleteModal.bloque?.hora_fin})?`}
-          confirmText="Eliminar"
-          cancelText="Cancelar"
-          type="danger"
-          loading={deleting}
-        />
+        <button
+          onClick={() => navigate("/dashboard/bloques-horarios/nuevo")}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          <PlusCircle size={20} /> Nuevo Bloque Horario
+        </button>
       </div>
+
+      {error && (
+        <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
+          <p className="font-bold">Error:</p>
+          <p>{error}</p>
+        </div>
+      )}
+
+      {/* Novedad: Usamos el nuevo componente y le pasamos las props */}
+      <AgendaSemanal
+        citasPorDia={citasPorDia}
+        bloquesPorDia={bloquesPorDia}
+        loading={loading}
+        onEditBloque={handleEdit}
+        onDeleteBloque={handleDelete}
+      />
+
+      <ConfirmModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, bloque: null })}
+        onConfirm={confirmDelete}
+        title="Eliminar Bloque Horario"
+        message={`¿Estás seguro de eliminar el bloque de ${
+          deleteModal.bloque?.dia_semana
+        } de ${deleteModal.bloque?.hora_inicio.substring(
+          0,
+          5
+        )} a ${deleteModal.bloque?.hora_fin.substring(0, 5)}?`}
+        type="danger"
+      />
     </div>
   );
 };
 
-export default BloqueHorario;
+export default GestionarBloqueHorario;
