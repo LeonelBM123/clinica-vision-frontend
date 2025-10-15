@@ -29,6 +29,26 @@ import GestionarMedicos from "../pages/Gestionar_Medicos/index.jsx";
 import CrearMedico from "../pages/Gestionar_Medicos/create.jsx";
 import EditarMedico from "../pages/Gestionar_Medicos/edit.jsx";
 
+// Páginas de gestión de citas médicas
+import GestionarCitasMedicas from "../pages/Gestionar_Cita_Medica/index.jsx";
+import CrearCitaMedica from "../pages/Gestionar_Cita_Medica/create.jsx";
+import EditarCitaMedica from "../pages/Gestionar_Cita_Medica/edit.jsx";
+
+// Páginas de gestión de bloque horario
+import GestionarBloqueHorario from "../pages/Bloque_Horario/index.jsx";
+import CrearBloqueHorario from "../pages/Bloque_Horario/create.jsx";
+import EditarBloqueHorario from "../pages/Bloque_Horario/edit.jsx";
+
+// Páginas de gestión de pacientes
+import GestionarPacientes from "../pages/Gestionar_Pacientes/index.jsx";
+import CrearPaciente from "../pages/Gestionar_Pacientes/create.jsx";
+import EditarPaciente from "../pages/Gestionar_Pacientes/edit.jsx";
+
+// Páginas de gestión de usuarios
+import GestionarUsuarios from "../pages/Gestionar_Usuarios/index.jsx";
+import CrearUsuario from "../pages/Gestionar_Usuarios/create.jsx";
+import EditarUsuario from "../pages/Gestionar_Usuarios/edit.jsx";
+
 // Páginas de gestión de bitácora
 import GestionarBitacora from "../pages/Gestionar_Bitacora/index";
 
@@ -65,7 +85,11 @@ const router = createBrowserRouter([
   },
   {
     path: "recuperar-password",
-    element:<PublicRoute><ResetPassword /></PublicRoute>,
+    element: (
+      <PublicRoute>
+        <ResetPassword />
+      </PublicRoute>
+    ),
   },
   // Layout principal - todas las rutas autenticadas usando AdminLayout
 
@@ -105,6 +129,46 @@ const router = createBrowserRouter([
         children: [
           { path: "nuevo", element: <CrearMedico /> },
           { path: ":id/editar", element: <EditarMedico /> },
+        ],
+      },
+
+      // Gestión de citas medicas (Doctor)
+      {
+        path: "citas-medicas",
+        element: <GestionarCitasMedicas />,
+        children: [
+          { path: "nuevo", element: <CrearCitaMedica /> },
+          { path: ":id/editar", element: <EditarCitaMedica /> },
+        ],
+      },
+
+      // Gestión de Bloque Horario (Doctor)
+      {
+        path: "bloques-horarios",
+        element: <GestionarBloqueHorario />,
+        children: [
+          { path: "nuevo", element: <CrearBloqueHorario /> },
+          { path: ":id/editar", element: <EditarBloqueHorario /> },
+        ],
+      },
+
+      // Gestión de Pacientes (Medicos)
+      {
+        path: "pacientes",
+        element: <GestionarPacientes />,
+        children: [
+          { path: "nuevo", element: <CrearPaciente /> },
+          { path: ":id/editar", element: <EditarPaciente /> },
+        ],
+      },
+
+      // Gestión de Usuarios ()
+      {
+        path: "usuarios",
+        element: <GestionarUsuarios />,
+        children: [
+          { path: "nuevo", element: <CrearUsuario /> },
+          { path: ":id/editar", element: <EditarUsuario /> },
         ],
       },
 

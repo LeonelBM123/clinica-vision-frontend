@@ -1,33 +1,32 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, AlertCircle } from "lucide-react";
-import PacienteForm from "../../components/Form/PacienteForm";
-import { api } from "../../services/apiClient";
+import CitaForm from "../../components/Form/CitaForm.jsx";
+import { api } from "../../services/apiClient.js";
 
-export default function CrearPaciente() {
-  const [loading, setLoading] = useState(false);
-  const [usuarios, setUsuarios] = useState([]);
-  const [patologias, setPatologias] = useState([]);
+export default function CrearCitaMedica() {
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Cargar usuarios (rol paciente) y patologías
-    api.get(`/cuentas/usuarios/?rol=paciente`).then((data) => setUsuarios(Array.isArray(data) ? data : [])).catch(() => {});
-    api.get(`/diagnosticos/patologias/`).then((data) => setPatologias(Array.isArray(data) ? data : [])).catch(() => {});
-  }, []);
-
-  function handleSubmit(data) {
-    setLoading(true);
+  const handleSubmit = (data) => {
+    setSaving(true);
     setError("");
-    api.post(`/diagnosticos/pacientes/`, data)
+    api
+      .post("/citas_pagos/citas-medicas/", data)
       .then(() => {
-        navigate(`/dashboard/pacientes`);
-        window.location.reload();
+        // Podrías pasar un estado en la navegación para mostrar una notificación
+        navigate("/dashboard/citas-medicas");
+        window.location.reload();  // Para asegurar que la tabla se actualice
       })
-      .catch((e) => setError(e.message || "Error creando paciente"))
-      .finally(() => setLoading(false));
-  }
+      .catch((e) =>
+        setError(
+          e.message ||
+            "Error al agendar la cita. Verifique que todos los campos sean correctos y el horario siga disponible."
+        )
+      )
+      .finally(() => setSaving(false));
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-6">
@@ -44,53 +43,45 @@ export default function CrearPaciente() {
             </button>
             <div className="h-6 w-px bg-gray-300"></div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Nuevo Paciente</h1>
+              <h1 className="text-3xl font-bold text-gray-900">
+                Agendar Nueva Cita
+              </h1>
               <p className="text-gray-600 mt-1">
-                Registra un nuevo paciente en el sistema
+                Seleccione el paciente, médico y horario disponible.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Error */}
+        {/* Mensaje de Error */}
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3">
             <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
             <div>
-              <h3 className="text-red-800 font-semibold">
-                Error al crear Paciente
-              </h3>
+              <h3 className="text-red-800 font-semibold">Error al Agendar</h3>
               <p className="text-red-600 text-sm">{error}</p>
             </div>
           </div>
         )}
 
-        {/* Formulario */}
+        {/* Contenedor del Formulario */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
           <div className="px-6 py-4 bg-gradient-to-r from-blue-50 to-white border-b border-gray-200">
             <h2 className="text-xl font-bold text-gray-900">
-              Información del Paciente
+              Detalles de la Cita
             </h2>
             <p className="text-gray-600 text-sm mt-1">
-              Complete los datos requeridos
+              Complete los datos requeridos para la nueva cita.
             </p>
           </div>
 
           <div className="p-6">
-            <PacienteForm
-              initialPaciente={null}
-              usuariosOptions={usuarios}
-              patologiasOptions={patologias}
+            <CitaForm
               onSubmit={handleSubmit}
-              onCancel={() => navigate("/dashboard/pacientes")}
-              loading={loading}
+              onCancel={() => navigate("/dashboard/citas-medicas")}
+              loading={saving}
             />
           </div>
-        </div>
-
-        {/* Footer informativo */}
-        <div className="mt-8 text-center text-gray-500 text-sm">
-          <p>Los campos marcados con * son obligatorios</p>
         </div>
       </div>
     </div>
