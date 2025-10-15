@@ -32,6 +32,11 @@ import EditarMedico from "../pages/Gestionar_Medicos/edit.jsx";
 // Páginas de gestión de bitácora
 import GestionarBitacora from "../pages/Gestionar_Bitacora/index";
 
+// Paginas de Historial de Consultas
+import HistorialConsultas from "../pages/HistorialConsultas/index.jsx";
+import PacienteCitas from "../pages/HistorialConsultas/PacienteCitas.jsx";
+
+
 const router = createBrowserRouter([
   // Rutas públicas
   {
@@ -107,6 +112,15 @@ const router = createBrowserRouter([
       {
         path: "bitacora",
         element: <GestionarBitacora />,
+      },
+
+      // Consultar Historial de Consultas (Doctor y/o Paciente)
+      {
+        path: "historial-clinico",
+        element: <HistorialConsultas />,
+        children: [
+          { path: ":idPaciente/citas", element: <PacienteCitas /> },
+        ],
       },
     ],
   },
