@@ -50,7 +50,7 @@ const GestionarCitasMedicas = () => {
     try {
       setLoading(true);
       setError("");
-      const data = await api.get("/citas/citas-medicas/");
+      const data = await api.get("/citas_pagos/citas-medicas/");
       setCitas(Array.isArray(data) ? data : []);
     } catch (error) {
       setError(error.message || "Error al cargar las citas");
@@ -71,7 +71,7 @@ const GestionarCitasMedicas = () => {
   const confirmDelete = async () => {
     if (!deleteModal.cita) return;
     try {
-      await api.delete(`/citas/citas-medicas/${deleteModal.cita.id}/`);
+      await api.delete(`/citas_pagos/citas-medicas/${deleteModal.cita.id}/`);
       await loadCitas();
       setDeleteModal({ isOpen: false, cita: null });
     } catch (error) {
