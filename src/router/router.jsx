@@ -3,6 +3,7 @@ import HomePage from "../home/HomePage";
 import ResetPassword from "../pages/RecuperarPassword"
 import Login from "../pages/Login.jsx";
 import RegisterClinic from "../pages/RegisterClinic";
+import React from "react";
 
 // Layout principal
 import AdminLayout from "../layouts/Layout.jsx";
@@ -51,6 +52,13 @@ import EditarUsuario from "../pages/Gestionar_Usuarios/edit.jsx";
 
 // Páginas de gestión de bitácora
 import GestionarBitacora from "../pages/Gestionar_Bitacora/index";
+
+// Paginas de Historial de Consultas
+import HistorialConsultas from "../pages/HistorialConsultas/index.jsx";
+import PacienteCitas from "../pages/HistorialConsultas/PacienteCitas.jsx";
+
+
+const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
 const router = createBrowserRouter([
   // Rutas públicas
@@ -171,6 +179,18 @@ const router = createBrowserRouter([
       {
         path: "bitacora",
         element: <GestionarBitacora />,
+      },
+
+      // Consultar Historial de Consultas (Doctor y/o Paciente)
+      {
+        path: "historial-clinico",
+        element: <HistorialConsultas currentUser={currentUser} />,
+      },
+
+      // Ruta independiente para mostrar el historial de un paciente
+      {
+        path: "pacientes/:idPaciente/citas",
+        element: <PacienteCitas />,
       },
     ],
   },
