@@ -1,26 +1,40 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Outlet } from "react-router-dom";
 import { api } from "../../services/apiClient";
+import authService from "../../services/auth";
 
 export default function HistorialConsultas() {
-  const [pacientes, setPacientes] = useState([]);
+  const [pacientes, setPacientes] = useState([]); // siempre inicia como arreglo
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  const currentUser = authService.getCurrentUser();
+
   useEffect(() => {
     async function fetchPacientes() {
       try {
-        const data = await api.get("/citas/pacientes/");
-        setPacientes(data);
+        if (!currentUser) {
+          setError("No hay usuario logueado");
+          setLoading(false);
+          return;
+        }
+
+        const grupoId = currentUser.grupo_id;
+        const response = await api.get(`diagnosticos/pacientes/?grupo_id=${grupoId}`);
+
+        // Asegurarnos que sea un arreglo aunque response sea inesperado
+        const datos = response?.data ?? response ?? [];
+        setPacientes(Array.isArray(datos) ? datos : []);
       } catch (err) {
-        setError(err.message);
+        setError(err.message || "Error al cargar pacientes");
       } finally {
         setLoading(false);
       }
     }
+
     fetchPacientes();
-  }, []);
+  }, [currentUser]);
 
   if (loading)
     return (
@@ -42,6 +56,7 @@ export default function HistorialConsultas() {
       <h1 className="text-2xl font-bold text-gray-800 mb-6">
         Historial Clínico – Pacientes
       </h1>
+
       <div className="bg-white shadow rounded-xl overflow-hidden border border-gray-200">
         <table className="min-w-full">
           <thead className="bg-blue-600 text-white">
@@ -59,7 +74,9 @@ export default function HistorialConsultas() {
                   <td className="py-3 px-4">{p.correo}</td>
                   <td className="py-3 px-4">
                     <button
-                      onClick={() => navigate(`/dashboard/historial/${p.id}`)}
+                      onClick={() =>
+                        navigate(`/dashboard/pacientes/${p.id}/citas`)
+                      }
                       className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
                     >
                       Ver Historial
@@ -69,10 +86,7 @@ export default function HistorialConsultas() {
               ))
             ) : (
               <tr>
-                <td
-                  colSpan="3"
-                  className="text-center py-6 text-gray-500 italic"
-                >
+                <td colSpan="3" className="text-center py-6 text-gray-500 italic">
                   No hay pacientes registrados.
                 </td>
               </tr>

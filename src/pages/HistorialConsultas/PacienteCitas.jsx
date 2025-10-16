@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { api } from "../../services/apiClient";
+import authService from "../../services/auth";
 
-export default function PacienteCitas() {
-  const { pacienteId } = useParams();
+export default function PacienteCitas({ currentUser }) {
+  const { idPaciente } = useParams();
   const [citas, setCitas] = useState([]);
   const [paciente, setPaciente] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -11,19 +12,54 @@ export default function PacienteCitas() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    async function fetchCitas() {
-      try {
-        const data = await api.get(`/citas/pacientes/${pacienteId}/citas/`);
-        setCitas(data);
-        if (data.length > 0) setPaciente(data[0].paciente || null);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
+  async function fetchCitas() {
+    let token = null;
+
+    // 1️ Intentar obtener token desde currentUser
+    if (currentUser?.token) token = currentUser.token;
+
+    // 2️ Si no está, tomarlo directamente desde authService
+    else {
+      const user = authService.getCurrentUser();
+      token = user?.token;
     }
-    fetchCitas();
-  }, [pacienteId]);
+
+    // 3️ Si no hay token, intentar tomarlo desde localStorage
+    if (!token) token = localStorage.getItem("token");
+
+    if (!token) {
+      setError("Usuario no autenticado. No se puede obtener el historial.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await api.get(
+        `citas_pagos/citas/paciente/${idPaciente}/`,
+        {
+          headers: { Authorization: `Token ${token}` },
+        }
+      );
+
+      console.log("Datos recibidos del backend:", response.data);
+
+      const data = Array.isArray(response.data) ? response.data : [];
+      setCitas(data);
+
+      if (data.length > 0) setPaciente(data[0].paciente || null);
+      else setPaciente(null);
+
+      if (data.length === 0) setError("Este paciente no tiene citas registradas.");
+    } catch (err) {
+      console.error("Error al obtener citas:", err);
+      setError("Error al obtener citas del servidor.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  fetchCitas();
+}, [idPaciente, currentUser]);
 
   if (loading)
     return (
@@ -36,7 +72,7 @@ export default function PacienteCitas() {
   if (error)
     return (
       <div className="text-center text-red-600 py-10">
-        Error al cargar citas: {error}
+        {error}
       </div>
     );
 
@@ -68,7 +104,7 @@ export default function PacienteCitas() {
               citas.map((cita) => (
                 <tr key={cita.id} className="border-b hover:bg-gray-50">
                   <td className="py-3 px-4">{cita.fecha || "—"}</td>
-                  <td className="py-3 px-4">{cita.hora || "—"}</td>
+                  <td className="py-3 px-4">{cita.hora_inicio || "—"}</td>
                   <td className="py-3 px-4">{cita.medico?.nombre || "—"}</td>
                   <td className="py-3 px-4">{cita.motivo || "Sin descripción"}</td>
                 </tr>
@@ -89,3 +125,4 @@ export default function PacienteCitas() {
     </div>
   );
 }
+
