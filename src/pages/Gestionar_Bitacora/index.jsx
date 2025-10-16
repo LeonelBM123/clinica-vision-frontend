@@ -1,102 +1,61 @@
 // src/pages/Gestionar_Bitacora/index.jsx
 import React, { useEffect, useState } from "react";
-import { API_BASE_URL } from "../../config/api";
-
-const API_BASE = `${API_BASE_URL}api/bitacora/`;
+import UniversalTable from "../../components/UniversalTable";
+import { api } from "../../services/apiClient";
 
 export default function GestionarBitacora() {
     const [registros, setRegistros] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-
-    const token = localStorage.getItem("token");
-
-    async function fetchBitacora() {
-        setLoading(true);
-        setError(null);
-        try {
-            const res = await fetch(`${API_BASE_URL}api/cuentas/bitacoras/`, {
-                headers: {
-                    "Content-Type": "application/json",
-                    ...(token ? { Authorization: `Token ${token}` } : {})
-                }
-            });
-
-            if (!res.ok) {
-                const text = await res.text();
-                throw new Error(`Error ${res.status}: ${text}`);
-            }
-            const data = await res.json();
-            setRegistros(data);
-        } catch (err) {
-            console.error(err);
-            setError(String(err));
-        } finally {
-            setLoading(false);
-        }
-    }
+    const [error, setError] = useState("");
 
     useEffect(() => {
-        fetchBitacora();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        setLoading(true);
+        setError("");
+        api.get("/cuentas/bitacoras/")
+            .then(data => setRegistros(Array.isArray(data) ? data : []))
+            .catch(e => setError(e.message))
+            .finally(() => setLoading(false));
     }, []);
 
+    const columns = [
+        { header: "ID", accessor: "id" },
+        {
+            header: "Fecha/Hora",
+            accessor: "timestamp",
+            render: item =>
+                item.timestamp
+                    ? new Date(item.timestamp).toLocaleString("es-BO", { timeZone: "America/La_Paz" })
+                    : "—"
+        },
+        { header: "Usuario", accessor: "usuario" },
+        { header: "Acción", accessor: "accion" },
+        { header: "Objeto", accessor: "objeto" },
+        { header: "IP", accessor: "ip" },
+        {
+            header: "Extra",
+            accessor: "extra",
+            render: item => item.extra ? JSON.stringify(item.extra) : "—"
+        }
+    ];
+
     return (
-        <div style={{ padding: 20, color: "black" }}>
-            <h1>Bitácora del Sistema</h1>
-
-            {loading && <div>Cargando...</div>}
-            {error && <div style={{ color: "red" }}>{error}</div>}
-
-            <table
-                style={{
-                    width: "100%",
-                    borderCollapse: "collapse",
-                    marginTop: 12,
-                    color: "black"
-                }}
-            >
-                <thead>
-                    <tr>
-                        <th style={{ border: "1px solid #ddd", padding: 6 }}>ID</th>
-                        <th style={{ border: "1px solid #ddd", padding: 6 }}>Fecha/Hora</th>
-                        <th style={{ border: "1px solid #ddd", padding: 6 }}>Usuario</th>
-                        <th style={{ border: "1px solid #ddd", padding: 6 }}>Acción</th>
-                        <th style={{ border: "1px solid #ddd", padding: 6 }}>Objeto</th>
-                        <th style={{ border: "1px solid #ddd", padding: 6 }}>IP</th>
-                        <th style={{ border: "1px solid #ddd", padding: 6 }}>Extra</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {registros.length === 0 && !loading ? (
-                        <tr>
-                            <td colSpan={7} style={{ textAlign: "center", padding: 10 }}>
-                                No hay registros
-                            </td>
-                        </tr>
-                    ) : (
-                        registros.map((r) => (
-                            <tr key={r.id}>
-                                <td style={{ border: "1px solid #ddd", padding: 6 }}>{r.id}</td>
-                                <td style={{ border: "1px solid #ddd", padding: 6 }}>
-                                    {new Date(r.timestamp).toLocaleString("es-BO", {
-                                        timeZone: "America/La_Paz"
-                                    })}
-                                </td>
-                                <td style={{ border: "1px solid #ddd", padding: 6 }}>
-                                    {r.usuario || "Anónimo"}
-                                </td>
-                                <td style={{ border: "1px solid #ddd", padding: 6 }}>{r.accion}</td>
-                                <td style={{ border: "1px solid #ddd", padding: 6 }}>{r.objeto}</td>
-                                <td style={{ border: "1px solid #ddd", padding: 6 }}>{r.ip}</td>
-                                <td style={{ border: "1px solid #ddd", padding: 6 }}>
-                                    {JSON.stringify(r.extra || {})}
-                                </td>
-                            </tr>
-                        ))
-                    )}
-                </tbody>
-            </table>
+        <div className="p-6">
+            <h1 className="text-3xl font-bold mb-6">Bitácora del Sistema</h1>
+            {error && (
+                <div className="mb-6 px-4 py-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl">
+                    {error}
+                </div>
+            )}
+            <UniversalTable
+                title="Registros de Bitácora"
+                data={registros}
+                columns={columns}
+                loading={loading}
+                emptyMessage="No hay registros en la bitácora"
+                showAddButton={false}
+                showEditButton={false}
+                showDeleteButton={false}
+            />
         </div>
     );
 }

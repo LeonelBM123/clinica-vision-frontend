@@ -70,11 +70,6 @@ const getAllMenuPackages = () => {
       name: "Reportes y Configuración",
       items: [
         {
-          label: "Reportes Globales",
-          path: "reportes-globales",
-          icon: <PieChart size={20} />,
-        },
-        {
           label: "Configuración Global",
           path: "configuracion-global",
           icon: <Settings size={20} />,
@@ -103,11 +98,6 @@ const getMenuPackagesByRole = (currentUser) => {
           label: "Gestionar Pacientes",
           path: "pacientes",
           icon: <Users size={iconSize} />,
-        },
-        {
-          label: "Historial Clínico",
-          path: "historial-clinico",
-          icon: <FileText size={iconSize} />,
         },
       ],
     },
@@ -150,21 +140,6 @@ const getMenuPackagesByRole = (currentUser) => {
             label: "Tratamientos y Medicación",
             path: "tratamientos",
             icon: <Pill size={iconSize} />,
-          },
-        ],
-      },
-      {
-        name: "Reportes",
-        items: [
-          {
-            label: "Reporte de Citas",
-            path: "reporte-citas",
-            icon: <FileText size={iconSize} />,
-          },
-          {
-            label: "Reporte Financiero",
-            path: "reporte-financiero",
-            icon: <CreditCard size={iconSize} />,
           },
         ],
       },
