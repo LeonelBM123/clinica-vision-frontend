@@ -3,11 +3,17 @@ import Select from "react-select";
 import AsyncSelect from "react-select/async";
 import { api } from "../../services/apiClient";
 import dayjs from "dayjs";
-
-// Solución: Importamos tu servicio de autenticación directamente
 import authService from "../../services/auth";
 
-// Componente helper para los campos del formulario (sin cambios)
+const ESTADOS_CITA_OPTIONS = [
+  { value: "PENDIENTE", label: "Pendiente" },
+  { value: "CONFIRMADA", label: "Confirmada" },
+  { value: "EN_PROCESO", label: "En Proceso" },
+  { value: "COMPLETADA", label: "Completada" },
+  { value: "CANCELADA", label: "Cancelada" },
+  { value: "NO_ASISTIO", label: "No Asistió" },
+];
+
 function Field({ label, error, children }) {
   return (
     <div className="space-y-2">
@@ -27,12 +33,9 @@ export default function CitaForm({
   loading = false,
 }) {
   const isEditMode = !!initialCita;
-
-  // Solución: Obtenemos el usuario y su rol directamente de tu servicio
   const user = authService.getCurrentUser();
   const isUserMedico = authService.isMedico();
 
-  // Estados del formulario
   const [pacientesOptions, setPacientesOptions] = useState([]);
   const [loadingPacientes, setLoadingPacientes] = useState(false);
   const [selectedMedico, setSelectedMedico] = useState(null);
@@ -44,7 +47,8 @@ export default function CitaForm({
 
   const [form, setForm] = useState({
     paciente: null,
-    bloque_horario: initialCita?.bloque_horario || null,
+    bloque_horario:
+      initialCita?.bloque_horario_id || initialCita?.bloque_horario || null,
     hora_inicio: initialCita?.hora_inicio || "",
     notas: initialCita?.notas || "",
     estado_cita: initialCita?.estado_cita || "PENDIENTE",
@@ -52,19 +56,16 @@ export default function CitaForm({
 
   const [touched, setTouched] = useState({});
 
-  // Cargar todos los pacientes al montar el componente
   useEffect(() => {
     setLoadingPacientes(true);
     api
-      .get("/diagnosticos/pacientes/?busqueda_global=true")
+      .get("/diagnosticos/pacientes/?busqueda_global=false")
       .then((data) => {
         const options = data.map((paciente) => ({
           label: `${paciente.nombre} (${paciente.numero_historia_clinica})`,
           value: paciente.id,
         }));
         setPacientesOptions(options);
-
-        // Si estamos en modo edición, pre-seleccionamos el paciente
         if (isEditMode && initialCita) {
           const pacienteSeleccionado = options.find(
             (opt) => opt.value === initialCita.paciente
@@ -76,10 +77,8 @@ export default function CitaForm({
       .finally(() => setLoadingPacientes(false));
   }, [isEditMode, initialCita]);
 
-  // Si el usuario es médico, se autoselecciona
   useEffect(() => {
     if (isUserMedico) {
-      // Tu API de login devuelve el usuario_id y correo. Necesitamos buscar los datos completos del médico.
       api
         .get(`/cuentas/usuarios/${user.usuario_id}/`)
         .then((medicoData) => {
@@ -91,33 +90,59 @@ export default function CitaForm({
     }
   }, [isUserMedico, user]);
 
-  // Cargar médicos de forma asíncrona (solo para recepcionistas)
   const loadMedicos = async (inputValue) => {
     const params = { search: inputValue };
     const data = await api.get("/doctores/medicos/", { params });
     return data.map((medico) => ({ label: medico.nombre, value: medico.id }));
   };
 
-  // Cargar horarios disponibles cuando cambia el médico o la fecha
+  // --- LÓGICA DE LA OPCIÓN 2 ---
   useEffect(() => {
     if (selectedMedico?.value && fecha) {
       setLoadingHorarios(true);
       setHorarios([]);
-      setForm((f) => ({ ...f, hora_inicio: "", bloque_horario: null }));
+
+      // No reseteamos la hora si estamos en modo edición para mantener la selección
+      if (!isEditMode) {
+        setForm((f) => ({ ...f, hora_inicio: "", bloque_horario: null }));
+      }
 
       api
         .get(
-          `/doctores/medicos/${selectedMedico.value}/horarios-disponibles/?fecha=${fecha}`
+          `/doctores/medicos/${selectedMedico.value}/horarios-disponibles-v2/?fecha=${fecha}`
         )
-        .then((data) => setHorarios(Array.isArray(data) ? data : []))
+        .then((data) => {
+          let horariosDisponibles = Array.isArray(data) ? data : [];
+
+          // Si estamos editando y la hora original no está en la lista, la añadimos
+          if (isEditMode && initialCita?.fecha === fecha) {
+            const horaOriginalExiste = horariosDisponibles.some(
+              (h) => h.hora_inicio === initialCita.hora_inicio
+            );
+            if (!horaOriginalExiste) {
+              const horarioOriginal = {
+                hora_inicio: initialCita.hora_inicio,
+                bloque_horario_id:
+                  initialCita.bloque_horario_id || initialCita.bloque_horario,
+                tipo_atencion_nombre: "Cita Original", // Texto para diferenciar si es necesario
+                duracion_minutos: 0,
+              };
+              horariosDisponibles.push(horarioOriginal);
+              // Ordena los horarios para que la hora original no aparezca al final
+              horariosDisponibles.sort((a, b) =>
+                a.hora_inicio.localeCompare(b.hora_inicio)
+              );
+            }
+          }
+          setHorarios(horariosDisponibles);
+        })
         .catch((e) => console.error("Error al cargar horarios:", e))
         .finally(() => setLoadingHorarios(false));
     } else {
       setHorarios([]);
     }
-  }, [selectedMedico, fecha]);
+  }, [selectedMedico, fecha, isEditMode, initialCita]);
 
-  // Manejar cambios en campos de texto
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -131,7 +156,6 @@ export default function CitaForm({
     }));
   };
 
-  // Enviar formulario
   const handleSubmit = (e) => {
     e.preventDefault();
     setTouched({
@@ -140,11 +164,9 @@ export default function CitaForm({
       fecha: true,
       hora_inicio: true,
     });
-
     if (!form.paciente || !selectedMedico || !fecha || !form.hora_inicio) {
       return;
     }
-
     const payload = {
       paciente: form.paciente.value,
       bloque_horario: form.bloque_horario,
@@ -152,8 +174,8 @@ export default function CitaForm({
       hora_inicio: form.hora_inicio,
       notas: form.notas,
       estado_cita: form.estado_cita,
+      medico: selectedMedico.value,
     };
-
     onSubmit(payload);
   };
 
@@ -166,7 +188,6 @@ export default function CitaForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Selector de Paciente con lista completa */}
         <Field
           label="Paciente *"
           error={invalid.paciente && "Seleccione un paciente"}
@@ -184,7 +205,6 @@ export default function CitaForm({
           />
         </Field>
 
-        {/* Selector de Médico condicional */}
         <Field
           label="Médico *"
           error={invalid.medico && "Seleccione un médico"}
@@ -212,18 +232,15 @@ export default function CitaForm({
         </Field>
       </div>
 
-      {/* Selector de Fecha */}
       <Field label="Fecha de la Cita *">
         <input
           type="date"
           value={fecha}
           onChange={(e) => setFecha(e.target.value)}
-          disabled={loading || isEditMode || !selectedMedico}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+          disabled={loading || !selectedMedico} // Permitimos cambiar la fecha en modo edición
         />
       </Field>
 
-      {/* Selección de Horario */}
       {selectedMedico && fecha && (
         <Field
           label="Horario Disponible *"
@@ -241,14 +258,13 @@ export default function CitaForm({
                     key={i}
                     type="button"
                     onClick={() => handleHorarioSelect(h)}
-                    disabled={loading || isEditMode}
                     className={`px-3 py-2 border rounded-lg text-sm font-medium transition ${
                       form.hora_inicio === h.hora_inicio
                         ? "bg-blue-600 text-white border-blue-600 shadow"
                         : "bg-white hover:bg-gray-50 border-gray-300"
-                    } ${isEditMode ? "cursor-not-allowed" : ""}`}
+                    }`}
                   >
-                    {h.hora_inicio}
+                    {h.hora_inicio.substring(0, 5)}
                   </button>
                 ))
               ) : (
@@ -261,7 +277,24 @@ export default function CitaForm({
         </Field>
       )}
 
-      {/* Notas adicionales */}
+      {isEditMode && (
+        <Field label="Estado de la Cita">
+          <select
+            name="estado_cita"
+            value={form.estado_cita}
+            onChange={handleChange}
+            disabled={loading}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white"
+          >
+            {ESTADOS_CITA_OPTIONS.map((estado) => (
+              <option key={estado.value} value={estado.value}>
+                {estado.label}
+              </option>
+            ))}
+          </select>
+        </Field>
+      )}
+
       <Field label="Notas Adicionales">
         <textarea
           name="notas"
@@ -273,7 +306,6 @@ export default function CitaForm({
         />
       </Field>
 
-      {/* Botones */}
       <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t">
         <button
           type="button"
