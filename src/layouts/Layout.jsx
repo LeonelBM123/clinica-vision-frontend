@@ -3,7 +3,7 @@ import { useState } from "react";
 import Header from "../components/common/Header";
 import Sidebar from "../components/common/Sidebar";
 import Footer from "../components/common/Footer";
-import authService from '../services/auth';
+import authService from "../services/auth";
 
 // Los mismos iconos, pero aumentaremos ligeramente su tamaño para mejor visibilidad
 import {
@@ -99,6 +99,11 @@ const getMenuPackagesByRole = (currentUser) => {
           path: "pacientes",
           icon: <Users size={iconSize} />,
         },
+        {
+          label: "Historial Clínico",
+          path: "historial-clinico",
+          icon: <FileText size={iconSize} />,
+        },
       ],
     },
   ];
@@ -185,19 +190,21 @@ const getMenuPackagesByRole = (currentUser) => {
 
 export default function AdminLayout() {
   const currentUser = authService.getCurrentUser();
-   console.log('currentUser:', currentUser);
-  console.log('rol:', currentUser?.rol);
-  const menuPackages = getMenuPackagesByRole(currentUser); 
+  console.log("currentUser:", currentUser);
+  console.log("rol:", currentUser?.rol);
+  const menuPackages = getMenuPackagesByRole(currentUser);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
 
-  const toggleSidebar = () => setSidebarOpen(open => !open);
+  const toggleSidebar = () => setSidebarOpen((open) => !open);
 
   // Generar título dinámico basado en rol
   const getTitle = () => {
-    if (currentUser?.rol === 'superAdmin') return 'Super Admin Panel';
-    if (currentUser?.rol === 'administrador') return `Admin - ${currentUser?.grupo_nombre || 'Dashboard'}`;
-    if (currentUser?.rol === 'medico') return `Médico - ${currentUser?.grupo_nombre || 'Dashboard'}`;
-    return 'Dashboard';
+    if (currentUser?.rol === "superAdmin") return "Super Admin Panel";
+    if (currentUser?.rol === "administrador")
+      return `Admin - ${currentUser?.grupo_nombre || "Dashboard"}`;
+    if (currentUser?.rol === "medico")
+      return `Médico - ${currentUser?.grupo_nombre || "Dashboard"}`;
+    return "Dashboard";
   };
 
   return (
@@ -208,10 +215,7 @@ export default function AdminLayout() {
         toggleSidebar={toggleSidebar}
       />
       <div className="flex flex-1 flex-col md:ml-64">
-        <Header 
-          title={getTitle()} 
-          toggleSidebar={toggleSidebar}
-        />
+        <Header title={getTitle()} toggleSidebar={toggleSidebar} />
         <div className="flex flex-col flex-1">
           <main className="flex-1 p-4 md:p-8">
             <Outlet />
