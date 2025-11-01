@@ -141,6 +141,11 @@ const getMenuPackagesByRole = (currentUser) => {
             path: "tratamientos",
             icon: <Pill size={iconSize} />,
           },
+          {
+            label: "Resultados de Exámenes",
+            path: "resultados-examenes",
+            icon: <FileText size={iconSize} />,
+          },
         ],
       },
     ];
@@ -163,7 +168,7 @@ const getMenuPackagesByRole = (currentUser) => {
         ],
       },
       {
-        name: "Patologias y Tratamientos",
+        name: "Patologias , Tratamientos y Resultados",
         items: [
           {
             label: "patologias",
@@ -174,6 +179,11 @@ const getMenuPackagesByRole = (currentUser) => {
             label: "Tratamientos",
             path: "tratamientos",
             icon: <Pill size={iconSize} />,
+          },
+          {
+            label: "Resultados de Exámenes",
+            path: "resultados-examenes",
+            icon: <FileText size={iconSize} />,
           },
         ],
       },
