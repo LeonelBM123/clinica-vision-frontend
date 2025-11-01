@@ -131,6 +131,7 @@ const getMenuPackagesByRole = (currentUser) => {
             path: "bitacora",
             icon: <ClipboardList size={iconSize} />,
           },
+
         ],
       },
       {
@@ -145,6 +146,20 @@ const getMenuPackagesByRole = (currentUser) => {
             label: "Tratamientos y Medicación",
             path: "tratamientos",
             icon: <Pill size={iconSize} />,
+          },
+          {
+            label: "Resultados de Exámenes",
+            path: "resultados-examenes",
+            icon: <FileText size={iconSize} />,
+          },
+        ],
+      },
+      {name: "Reportes",
+        items: [
+          {
+            label: "Reportes de servicios",
+            path: "reportes",
+            icon: "🗿",
           },
         ],
       },
@@ -168,7 +183,7 @@ const getMenuPackagesByRole = (currentUser) => {
         ],
       },
       {
-        name: "Patologias y Tratamientos",
+        name: "Patologias , Tratamientos y Resultados",
         items: [
           {
             label: "patologias",
@@ -179,6 +194,21 @@ const getMenuPackagesByRole = (currentUser) => {
             label: "Tratamientos",
             path: "tratamientos",
             icon: <Pill size={iconSize} />,
+          },
+          {
+            label: "Resultados de Exámenes",
+            path: "resultados-examenes",
+            icon: <FileText size={iconSize} />,
+          },
+        ],
+      },
+
+      {name: "Reportes",
+        items: [
+          {
+            label: "Reportes de atencion",
+            path: "reportes",
+            icon: "🗿",
           },
         ],
       },
