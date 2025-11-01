@@ -126,6 +126,7 @@ const getMenuPackagesByRole = (currentUser) => {
             path: "bitacora",
             icon: <ClipboardList size={iconSize} />,
           },
+
         ],
       },
       {
@@ -140,6 +141,15 @@ const getMenuPackagesByRole = (currentUser) => {
             label: "Tratamientos y Medicación",
             path: "tratamientos",
             icon: <Pill size={iconSize} />,
+          },
+        ],
+      },
+      {name: "Reportes",
+        items: [
+          {
+            label: "Reportes de servicios",
+            path: "reportes",
+            icon: "🗿",
           },
         ],
       },
@@ -174,6 +184,16 @@ const getMenuPackagesByRole = (currentUser) => {
             label: "Tratamientos",
             path: "tratamientos",
             icon: <Pill size={iconSize} />,
+          },
+        ],
+      },
+
+      {name: "Reportes",
+        items: [
+          {
+            label: "Reportes de atencion",
+            path: "reportes",
+            icon: "🗿",
           },
         ],
       },

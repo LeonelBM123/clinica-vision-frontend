@@ -58,6 +58,11 @@ import HistorialConsultas from "../pages/HistorialConsultas/index.jsx";
 import PacienteCitas from "../pages/HistorialConsultas/PacienteCitas.jsx";
 
 
+//paginas de reportes
+import PaginaReportes from "../pages/Reportes/reportesAdmin.jsx";
+import FormPersonalizar from "../pages/Reportes/formPersonalizar.jsx";
+
+
 const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
 const router = createBrowserRouter([
@@ -191,6 +196,16 @@ const router = createBrowserRouter([
       {
         path: "pacientes/:idPaciente/citas",
         element: <PacienteCitas />,
+      },
+
+      //rutas para los reportes
+      {
+        path:"reportes",
+        element:<PaginaReportes/>
+      },
+      {
+        path:"reportes/personalizar/",
+        element:<FormPersonalizar/>
       },
     ],
   },
