@@ -9,8 +9,8 @@ export default function PaginaReportes() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  async function handlePersonalizarReporte(){
-    navigate("/dashboard/reportes/personalizar/")
+  async function handlePersonalizarReporte(reportId){
+    navigate(`/dashboard/reportes/personalizar/${reportId}`)
   }
 
   async function handleDescargarReporte(reportId, reportUrlPath, fileName) {
@@ -65,28 +65,32 @@ export default function PaginaReportes() {
       titulo: 'Listado de Pacientes',
       urlPath: '/reportes/pacientes/pdf/', 
       fileName: 'listado_pacientes.pdf',
-      descripcion: 'Descarga un listado de todos los pacientes registrados en la clínica.'
+      descripcion: 'Descarga un listado de todos los pacientes registrados en la clínica.',
+      personalizado:true
     },
     {
       id: 'medicos',
       titulo: 'Listado de Médicos',
       urlPath: '/reportes/medicos/pdf/', 
       fileName: 'listado_medicos.pdf',
-      descripcion: 'Descarga un listado de todos los médicos y su especialidad.'
+      descripcion: 'Descarga un listado de todos los médicos y su especialidad.',
+      personalizado:false
     },
     {
       id: 'citas',
       titulo: 'Reporte de Citas ',
       urlPath: '/reportes/citas/pdf/', 
       fileName: 'reporte_citas.pdf',
-      descripcion: 'Un reporte general de todas las citas.'
+      descripcion: 'Un reporte general de todas las citas.',
+      personalizado:true
     },
     {
       id: 'pagos',
       titulo: 'Reporte de Facturación',
       urlPath: '/reportes/pagos/pdf/', 
       fileName: 'reporte_facturacion.pdf',
-      descripcion: 'Un reporte detallado de todos los pagos y facturas emitidas.'
+      descripcion: 'Un reporte detallado de todos los pagos y facturas emitidas.',
+      personalizado:false
     }
   ];
 
@@ -165,17 +169,18 @@ export default function PaginaReportes() {
                     </span>
                   </button>
 
-                  <button
-                    onClick={() => handlePersonalizarReporte()}
-                    className="mt-3 sm:mt-0 sm:ml-4 flex-shrink-0 w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-md transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    
-                      <FileText size={20} />
-                    
-                    <span>
-                      {"Personalizar"}
-                    </span>
-                  </button>
+                  {report.personalizado && (
+                      <button
+                        onClick={() => handlePersonalizarReporte(report.id)}
+                        disabled={loadingReport !== null} // Deshabilitado si algo más está cargando
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-md transition-colors font-semibold"
+                      >
+                        <FileText size={20} />
+                        <span>
+                          {"Ver Dashboard"}
+                        </span>
+                      </button>
+                    )}
                 </div>
               ))}
             </div>

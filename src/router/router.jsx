@@ -213,7 +213,7 @@ const router = createBrowserRouter([
         element:<PaginaReportes/>
       },
       {
-        path:"reportes/personalizar/",
+        path:"reportes/personalizar/:tipoReporte",
         element:<FormPersonalizar/>
       },
     ],
